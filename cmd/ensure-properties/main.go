@@ -98,10 +98,10 @@ func main() {
 			has_updates = true
 		}
 
-		_, repo_ok := props_map["wof:repo"]
+		_, repo_ok := props_map["sfomuseum:repo"]
 
 		if !repo_ok {
-			props_map["wof:repo"] = "sfomuseum-data-whosonfirst"
+			props_map["sfomuseum:repo"] = "sfomuseum-data-whosonfirst"
 			has_updates = true
 		}
 
@@ -117,7 +117,7 @@ func main() {
 			props_map["sfomuseum:placetype"] = pt_rsp.String()
 			has_updates = true
 		}
-
+		
 		if !has_updates {
 			return nil
 		}
