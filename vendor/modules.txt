@@ -18,14 +18,14 @@ github.com/aaronland/go-uid
 github.com/aaronland/go-uid-artisanal
 # github.com/g8rswimmer/error-chain v1.0.0
 github.com/g8rswimmer/error-chain
-# github.com/natefinch/atomic v0.0.0-20200526193002-18c0533a5b09
+# github.com/natefinch/atomic v1.0.1
 github.com/natefinch/atomic
 # github.com/paulmach/orb v0.2.2
 github.com/paulmach/orb
 github.com/paulmach/orb/geojson
 github.com/paulmach/orb/internal/length
 github.com/paulmach/orb/planar
-# github.com/sfomuseum/go-edtf v0.2.3
+# github.com/sfomuseum/go-edtf v0.2.4
 github.com/sfomuseum/go-edtf
 github.com/sfomuseum/go-edtf/calendar
 github.com/sfomuseum/go-edtf/common
@@ -35,41 +35,43 @@ github.com/sfomuseum/go-edtf/level2
 github.com/sfomuseum/go-edtf/parser
 github.com/sfomuseum/go-edtf/re
 github.com/sfomuseum/go-edtf/tests
-# github.com/sfomuseum/go-sfomuseum-export/v2 v2.2.2
+# github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.4
 ## explicit
 github.com/sfomuseum/go-sfomuseum-export/v2
 github.com/sfomuseum/go-sfomuseum-export/v2/properties
-# github.com/tidwall/gjson v1.8.1
+# github.com/tidwall/gjson v1.9.2
 ## explicit
 github.com/tidwall/gjson
-# github.com/tidwall/match v1.0.3
+# github.com/tidwall/match v1.1.0
 github.com/tidwall/match
-# github.com/tidwall/pretty v1.1.0
+# github.com/tidwall/pretty v1.2.0
 ## explicit
 github.com/tidwall/pretty
-# github.com/tidwall/sjson v1.1.7
+# github.com/tidwall/sjson v1.2.2
 github.com/tidwall/sjson
 # github.com/whosonfirst/go-ioutil v1.0.0
 ## explicit
 github.com/whosonfirst/go-ioutil
-# github.com/whosonfirst/go-reader v0.7.0
+# github.com/whosonfirst/go-reader v0.9.0
 ## explicit
 github.com/whosonfirst/go-reader
 # github.com/whosonfirst/go-whosonfirst-crawl v0.2.1
 github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-export/v2 v2.3.2
+# github.com/whosonfirst/go-whosonfirst-export/v2 v2.3.5
 ## explicit
 github.com/whosonfirst/go-whosonfirst-export/v2
 github.com/whosonfirst/go-whosonfirst-export/v2/properties
-# github.com/whosonfirst/go-whosonfirst-format v0.3.0
+# github.com/whosonfirst/go-whosonfirst-format v0.3.6
 github.com/whosonfirst/go-whosonfirst-format
 # github.com/whosonfirst/go-whosonfirst-id v0.0.2
 github.com/whosonfirst/go-whosonfirst-id
 # github.com/whosonfirst/go-whosonfirst-iterate v1.2.0
 ## explicit
-github.com/whosonfirst/go-whosonfirst-iterate/emitter
-github.com/whosonfirst/go-whosonfirst-iterate/filters
-github.com/whosonfirst/go-whosonfirst-iterate/iterator
+# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.0
+## explicit
+github.com/whosonfirst/go-whosonfirst-iterate/v2/emitter
+github.com/whosonfirst/go-whosonfirst-iterate/v2/filters
+github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator
 # github.com/whosonfirst/go-whosonfirst-log v0.1.0
 github.com/whosonfirst/go-whosonfirst-log
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
@@ -78,7 +80,7 @@ github.com/whosonfirst/go-whosonfirst-sources/sources
 # github.com/whosonfirst/go-whosonfirst-uri v1.1.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-uri
-# github.com/whosonfirst/go-writer v0.5.0
+# github.com/whosonfirst/go-writer v0.6.0
 ## explicit
 github.com/whosonfirst/go-writer
 # github.com/whosonfirst/walk v0.0.1
