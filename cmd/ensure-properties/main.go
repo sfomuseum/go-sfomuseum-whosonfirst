@@ -2,21 +2,17 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/tidwall/gjson"
-	"github.com/tidwall/pretty"
-	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
 	"io"
 	"log"
-	"path/filepath"
 )
 
 func main() {
@@ -62,34 +58,13 @@ func main() {
 			return fmt.Errorf("Failed to read '%s', %v", path, err)
 		}
 
-		props_tree, err := uri.Id2Path(id)
+		props_map, err := custom.EnsureCustomProperties(ctx, props_r, props_wr, id)
 
 		if err != nil {
-			return fmt.Errorf("Failed to derive path for '%d', %v", id, err)
+			return fmt.Errorf("Failed to load custom properties for for '%d', %v", id, err)
 		}
 
-		var props_map map[string]interface{}
 		has_updates := false
-
-		props_fname := fmt.Sprintf("%d.json", id)
-		props_path := filepath.Join(props_tree, props_fname)
-
-		props_fh, err := props_r.Read(ctx, props_path)
-
-		if err == nil {
-
-			dec := json.NewDecoder(props_fh)
-			err = dec.Decode(&props_map)
-
-			if err != nil {
-				return fmt.Errorf("Failed to decode properties map, %v", err)
-			}
-
-		} else {
-
-			props_map = make(map[string]interface{})
-			has_updates = true
-		}
 
 		_, repo_ok := props_map["sfomuseum:repo"]
 
@@ -101,42 +76,35 @@ func main() {
 		_, placetype_ok := props_map["sfomuseum:placetype"]
 
 		if !placetype_ok {
+
 			pt_rsp := gjson.GetBytes(body, "properties.wof:placetype")
 
 			if !pt_rsp.Exists() {
 				return fmt.Errorf("Failed to derive wof:placetype for '%s'", path)
 			}
 
-			props_map["sfomuseum:placetype"] = pt_rsp.String()
+			switch pt_rsp.String() {
+			case "campus":
+				props_map["sfomuseum:placetype"] = "airport"
+			case "locality":
+				props_map["sfomuseum:placetype"] = "city"
+			default:
+				props_map["sfomuseum:placetype"] = pt_rsp.String()
+			}
+
 			has_updates = true
 		}
-		
+
 		if !has_updates {
 			return nil
 		}
 
-		props_body, err := json.Marshal(props_map)
+		err = custom.WriteCustomProperties(ctx, props_wr, id, props_map)
 
 		if err != nil {
-			return fmt.Errorf("Failed to marshal '%s', %v", props_path, err)
+			return fmt.Errorf("Failed to write custom properties for %d, %v", id, err)
 		}
 
-		props_body = pretty.Pretty(props_body)
-
-		br := bytes.NewReader(props_body)
-		cl, err := ioutil.NewReadSeekCloser(br)
-
-		if err != nil {
-			return fmt.Errorf("Failed to create new ReadSeekCloser for '%s', %v", props_path, err)
-		}
-
-		_, err = props_wr.Write(ctx, props_path, cl)
-
-		if err != nil {
-			return fmt.Errorf("Failed to write '%s', %v", props_path, err)
-		}
-
-		log.Printf("Write %s\n", props_path)
 		return nil
 	}
 

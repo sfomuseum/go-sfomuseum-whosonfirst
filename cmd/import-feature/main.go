@@ -11,31 +11,22 @@ import (
 )
 
 import (
-	"bufio"
-	"bytes"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/mitchellh/go-wordwrap"
+	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
 	sfom_reader "github.com/sfomuseum/go-sfomuseum-reader"
-	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer"
-	"github.com/whosonfirst/go-ioutil"
+	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-whosonfirst-feature/properties"	
 	"github.com/whosonfirst/go-writer"
-	"github.com/sfomuseum/go-edtf"	
-	"github.com/tidwall/gjson"	
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 )
-
-type SFOMuseumProperties map[string]interface{}
 
 func main() {
 
@@ -46,6 +37,8 @@ func main() {
 
 	data_writer_uri := flag.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
 	properties_writer_uri := flag.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+
+	data_exporter_uri := flag.String("data-exporter-uri", "sfomuseum://", "A valid whosonfirst/go-whosonfirst-export URI.")
 
 	retries := flag.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
 	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
@@ -94,6 +87,12 @@ func main() {
 		log.Fatal("Failed to create new properties writer, %v", err)
 	}
 
+	data_ex, err := export.NewExporter(ctx, *data_exporter_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to create new exporter, %v", err)
+	}
+
 	fetcher_opts, err := fetch.DefaultOptions()
 
 	if err != nil {
@@ -127,17 +126,17 @@ func main() {
 		"region",
 		"country",
 	}
-	
+
 	fetched_ids, err := fetcher.FetchIDs(ctx, ids, belongs_to...)
 
 	if err != nil {
 		log.Fatalf("Failed to fetch IDs, %v", err)
 	}
-	
+
 	for _, id := range fetched_ids {
 
 		// START OF put me in a package method or something
-		
+
 		data_body, err := sfom_reader.LoadBytesFromID(ctx, data_r, id)
 
 		if err != nil {
@@ -149,30 +148,11 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to derive placetype for %d, %v", id, err)
 		}
-		
-		fname := fmt.Sprintf("%d.json", id)
-		tree, err := uri.Id2Path(id)
+
+		props, err := custom.EnsureCustomProperties(ctx, props_r, props_wr, id)
 
 		if err != nil {
-			log.Fatalf("Failed to derive tree for ID %d, %v", id, err)
-		}
-
-		rel_path := filepath.Join(tree, fname)
-
-		var props map[string]interface{}
-
-		props_fh, err := props_r.Read(ctx, rel_path)
-
-		if err == nil {
-
-			dec := json.NewDecoder(props_fh)
-			err = dec.Decode(&props)
-
-			if err != nil {
-				log.Fatalf("Failed to decode properties for %d (%s), %v", id, rel_path, err)
-			}
-		} else {
-			props = make(map[string]interface{})
+			log.Fatalf("Failed to read custom properties for %d, %v", id, err)
 		}
 
 		props["wof:repo"] = "sfomuseum-data-whosonfirst"
@@ -186,81 +166,19 @@ func main() {
 			// pass
 		}
 
-		// To do: Other SFO Museum specific properties here
-		
-		var props_buf bytes.Buffer
-		props_buf_wr := bufio.NewWriter(&props_buf)
+		props = custom.ApplyEDTFFixes(ctx, data_body, props)
 
-		enc := json.NewEncoder(props_buf_wr)
-		err = enc.Encode(props)
+		err = custom.WriteCustomProperties(ctx, props_wr, id, props)
 
 		if err != nil {
-			log.Fatalf("Failed to encode properties for %d (%s), %v", id, rel_path, err)
+			log.Fatalf("Failed to write custom properties for %d, %v", id, err)
 		}
 
-		props_buf_wr.Flush()
-
-		br := bytes.NewReader(props_buf.Bytes())
-		props_rsc, err := ioutil.NewReadSeekCloser(br)
+		err = custom.MergeCustomProperties(ctx, props_r, data_r, data_wr, data_ex, id)
 
 		if err != nil {
-			log.Fatalf("Failed to create ReadSeekCloser for %d (%s), %v", id, rel_path, err)
+			log.Fatalf("Failed to merge custom properties for %d, %v", id, err)
 		}
 
-		_, err = props_wr.Write(ctx, rel_path, props_rsc)
-
-		// Now update the WOF record
-
-		to_update := make(map[string]interface{})
-
-		for k, v := range props {
-			path := fmt.Sprintf("properties.%s", k)
-			to_update[path] = v
-		}
-
-		// START OF account for known-bunk EDTF values in WOF records
-		// This should be made in to a package method or something
-
-		data_props := gjson.GetBytes(data_body, "properties")
-		
-		for k, v := range data_props.Map() {
-
-			if !strings.HasPrefix(k, "edtf:") {
-	                        continue
-			}
-
-	                path := fmt.Sprintf("properties.%s", k)
-
-			switch v.String() {
-		        case "open":
-
-				to_update[path] = edtf.OPEN
-
-		        case "uuuu":
-
-				to_update[path] = edtf.UNSPECIFIED				
-
-			default:
-                                // pass
-			}
-		}
-
-		// END OF account for known-bunk EDTF values in WOF records		
-		
-		has_changed, data_body, err := export.AssignPropertiesIfChanged(ctx, data_body, to_update)
-
-		if err != nil {
-			log.Fatalf("Failed to assign SFOM properties to WOF record %d, %v", id, err)
-		}
-
-		if has_changed {
-			_, err = sfom_writer.WriteFeatureBytes(ctx, data_wr, data_body)
-
-			if err != nil {
-				log.Fatalf("Failed to write WOF record %d, %v", id, err)
-			}
-		}
-
-		// END OF put me in a package method or something		
 	}
 }
