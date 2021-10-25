@@ -1,4 +1,4 @@
-# go-sfomuseum-data-whosonfirst
+# go-sfomuseum-whosonfirst
 
 Go package for working with whosonfirst-data repositories in a SFO Museum context.
 
