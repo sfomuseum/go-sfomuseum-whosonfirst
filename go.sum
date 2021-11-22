@@ -301,6 +301,8 @@ github.com/paulmach/orb v0.2.1 h1:Pp9UuWpUlGVRXzRC5eFlOgdlOXd/a3ALWC3UFLM3gOc=
 github.com/paulmach/orb v0.2.1/go.mod h1:91bG5A8qKNOiZtlKc0BqKMB3O5kWfRQorTwo8BZ2B/0=
 github.com/paulmach/orb v0.2.2 h1:PblToKAbU0xHVypex/GdZfibA1CeCfN5s0UjxyWExdo=
 github.com/paulmach/orb v0.2.2/go.mod h1:FkcWtplUAIVqAuhAOV2d3rpbnQyliDOjOcLW9dUrfdU=
+github.com/paulmach/orb v0.3.0 h1:JVitu/3sn0eslA0XGWfibiyNk+QNRAp9+oO5db53a7o=
+github.com/paulmach/orb v0.3.0/go.mod h1:FkcWtplUAIVqAuhAOV2d3rpbnQyliDOjOcLW9dUrfdU=
 github.com/paulmach/protoscan v0.2.0/go.mod h1:2c55sl1Hu6/tgRfc8Y8zADsxuSCYC2IrPh0JCqP/yrw=
 github.com/paulmach/protoscan v0.2.1-0.20210522164731-4e53c6875432/go.mod h1:2sV+uZ/oQh66m4XJVZm5iqUZ62BN88Ex1E+TTS0nLzI=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -368,6 +370,8 @@ github.com/tidwall/gjson v1.9.3/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlf
 github.com/tidwall/gjson v1.9.4/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.10.2 h1:APbLGOM0rrEkd8WBw9C24nllro4ajFuJu0Sc9hRz8Bo=
 github.com/tidwall/gjson v1.10.2/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
+github.com/tidwall/gjson v1.11.0 h1:C16pk7tQNiH6VlCrtIXL1w8GaOsi1X3W8KDkE1BuYd4=
+github.com/tidwall/gjson v1.11.0/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.0.1/go.mod h1:LujAq0jyVjBy028G1WhWfIzbpQfMO8bBZ6Tyb0+pL9E=
 github.com/tidwall/match v1.0.3 h1:FQUVvBImDutD8wJLN6c5eMzWtjgONK9MwIBCOrUJKeE=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
@@ -430,6 +434,8 @@ github.com/whosonfirst/go-whosonfirst-feature v0.0.9 h1:HMwJEArCIHTtOTwI8RUzLvzv
 github.com/whosonfirst/go-whosonfirst-feature v0.0.9/go.mod h1:NhUZ9XDyqQiOipFIBvbmixwfM6jtSzP2lX5dxcWX5uw=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.15 h1:pedqngP69ZY+Fwg08r8Ec0iCG7l2gdr6APTxTjOxOeE=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.15/go.mod h1:IgCgCT3G0c21YVGNyquPc+pi4YhHxZYb7sOxU5iRUhU=
+github.com/whosonfirst/go-whosonfirst-feature v0.0.17 h1:oDN8YcpuRlBxz5UQ8+M9MSdf3eduLEK8+roiUZHYTAI=
+github.com/whosonfirst/go-whosonfirst-feature v0.0.17/go.mod h1:vwNwMQLTL+vb88CXtTe4N63TLCn8DYREqR/Zm2Fn5rA=
 github.com/whosonfirst/go-whosonfirst-fetch v0.1.0 h1:YrbWMsMpusJ7rjIVgnjJIQuxjJTNWxtPz6oouk5g7p0=
 github.com/whosonfirst/go-whosonfirst-fetch v0.1.0/go.mod h1:nq9Bd4Vz1cJJtlB1FyKoT/ypdMgARhcz5qqBGNvbWRE=
 github.com/whosonfirst/go-whosonfirst-findingaid v0.0.7 h1:ZEquQ17oq/+iqmJLDxnTqZCLv93Ws7G+z7hguH9YvDU=
@@ -480,6 +486,8 @@ github.com/whosonfirst/go-writer v0.5.0 h1:+pcSBpTR6KST+HaGrIiQXCC4u2G+S5Ry8BHVg
 github.com/whosonfirst/go-writer v0.5.0/go.mod h1:TDK4n9E2JPxiGlmSAdi8BQUSlpawEPMF5grpFDjfqRA=
 github.com/whosonfirst/go-writer v0.6.0 h1:rlr8xGaUrSfUC4ogDHKj6F/bEkA1inbw95FEgCHbSAs=
 github.com/whosonfirst/go-writer v0.6.0/go.mod h1:Qj0rZgdoFagSJ1xwhm60KyTgMU4DK5C6q5n8zKpgnj8=
+github.com/whosonfirst/go-writer v0.7.0 h1:k0lqYFafxRfYDoUc5TQTanRrpHI8YMx2S5Tv0ISgjbY=
+github.com/whosonfirst/go-writer v0.7.0/go.mod h1:Qj0rZgdoFagSJ1xwhm60KyTgMU4DK5C6q5n8zKpgnj8=
 github.com/whosonfirst/walk v0.0.1 h1:t0QrqGwOdPMSeovFZSXfiS0GIGHrRXK3Wb9z5Uhs2bg=
 github.com/whosonfirst/walk v0.0.1/go.mod h1:1KtP/VeooSlFOI61p+THc/C16Ra8Z5MjpjI0tsd3c1M=
 github.com/whosonfirst/warning v0.1.0/go.mod h1:cAez7FpC/UEUrbiOXZO15v2JM8eijtFHQlN93AGFy1k=

@@ -8,6 +8,7 @@ package main
 import (
 	_ "github.com/whosonfirst/go-reader-http"
 	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
+	_ "github.com/whosonfirst/go-reader-github"	
 )
 
 import (
@@ -60,7 +61,7 @@ func main() {
 	wof_r, err := reader.NewReader(ctx, *wof_reader_uri)
 
 	if err != nil {
-		log.Fatalf("Failed to create new WOF reader, %v", err)
+		log.Fatalf("Failed to create new WOF reader for '%s', %v", *wof_reader_uri, err)
 	}
 
 	data_r, err := reader.NewReader(ctx, *data_reader_uri)
