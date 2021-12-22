@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/sfomuseum/go-edtf v0.3.1
+	github.com/sfomuseum/go-flags v0.8.2
 	github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.4
 	github.com/sfomuseum/go-sfomuseum-reader v0.0.1
 	github.com/tidwall/gjson v1.12.1

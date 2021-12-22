@@ -6,9 +6,8 @@
 package main
 
 import (
+	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
-	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
-	_ "github.com/whosonfirst/go-reader-github"	
 )
 
 import (
@@ -16,6 +15,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/mitchellh/go-wordwrap"
+	"github.com/sfomuseum/go-flags/multi"
 	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
 	sfom_reader "github.com/sfomuseum/go-sfomuseum-reader"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
@@ -31,7 +31,7 @@ import (
 
 func main() {
 
-	wof_reader_uri := flag.String("whosonfirst-reader-uri", "whosonfirst-data://", "A valid whosonfirst/go-reader URI.")
+	wof_reader_uri := flag.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
 
 	data_reader_uri := flag.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
 	properties_reader_uri := flag.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
@@ -43,6 +43,15 @@ func main() {
 
 	retries := flag.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
 	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
+
+	var str_properties multi.KeyValueString
+	flag.Var(&str_properties, "string-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.")
+
+	var int_properties multi.KeyValueInt64
+	flag.Var(&int_properties, "int-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a int(64) value.")
+
+	// var float_properties multi.KeyValueFloat64
+	// flag.Var(&float_properties, "float-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a float(64) value.")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Fetch one or more Who's on First records and, optionally, their ancestors.\n\n")
@@ -165,6 +174,18 @@ func main() {
 			props["sfomuseum:placetype"] = "city"
 		default:
 			// pass
+		}
+
+		for _, p := range str_properties {
+			path := p.Key()
+			value := p.Value()
+			props[path] = value
+		}
+
+		for _, p := range int_properties {
+			path := p.Key()
+			value := p.Value()
+			props[path] = value
 		}
 
 		props = custom.ApplyEDTFFixes(ctx, data_body, props)

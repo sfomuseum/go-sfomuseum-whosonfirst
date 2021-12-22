@@ -327,6 +327,7 @@ github.com/sfomuseum/go-edtf v0.3.0/go.mod h1:1rP0EJZ/84j3HO80vGcnG2T9MFBDAFyTNt
 github.com/sfomuseum/go-edtf v0.3.1 h1:22DEXVvGhnpF7PD4dvpgKH0/oD8u9I+a4cXCwy1x2f4=
 github.com/sfomuseum/go-edtf v0.3.1/go.mod h1:1rP0EJZ/84j3HO80vGcnG2T9MFBDAFyTNtjrr8cv3T4=
 github.com/sfomuseum/go-flags v0.7.0/go.mod h1:ML3DTNbF9xnjExSdS/9FtVLjIUhRU5gm/ehzISv+t2w=
+github.com/sfomuseum/go-flags v0.8.2 h1:elSU3KWMo442d1YjXu5Y/bokxvkGV+OrgAHshHZaeIo=
 github.com/sfomuseum/go-flags v0.8.2/go.mod h1:ML3DTNbF9xnjExSdS/9FtVLjIUhRU5gm/ehzISv+t2w=
 github.com/sfomuseum/go-sfomuseum-export v0.2.4 h1:ZflMeRm9Hit4ojrLnELdGNzs6Q0oyqIbrAa18FSLqoM=
 github.com/sfomuseum/go-sfomuseum-export v0.2.4/go.mod h1:6ekO6fQlvADbwoCR+eIIHWpT8pnhGUTT3X7T0x2UEHg=
