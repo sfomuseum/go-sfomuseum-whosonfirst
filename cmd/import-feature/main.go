@@ -27,6 +27,7 @@ import (
 	"github.com/whosonfirst/go-writer"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -173,21 +174,37 @@ func main() {
 		case "locality":
 			props["sfomuseum:placetype"] = "city"
 		default:
-			// pass
+			props["sfomuseum:placetype"] = data_pt
 		}
 
-		for _, p := range str_properties {
-			path := p.Key()
-			value := p.Value()
-			props[path] = value
+		cli_props := false
+
+		for _, i := range ids {
+
+			if i == id {
+				cli_props = true
+				break
+			}
 		}
 
-		for _, p := range int_properties {
-			path := p.Key()
-			value := p.Value()
-			props[path] = value
-		}
+		if cli_props {
 
+			for _, p := range str_properties {
+				path := p.Key()
+				value := p.Value()
+
+				path = strings.Replace(path, "properties.", "", 1)
+				props[path] = value
+			}
+
+			for _, p := range int_properties {
+				path := p.Key()
+				value := p.Value()
+
+				path = strings.Replace(path, "properties.", "", 1)
+				props[path] = value
+			}
+		}
 		props = custom.ApplyEDTFFixes(ctx, data_body, props)
 
 		err = custom.WriteCustomProperties(ctx, props_wr, id, props)
