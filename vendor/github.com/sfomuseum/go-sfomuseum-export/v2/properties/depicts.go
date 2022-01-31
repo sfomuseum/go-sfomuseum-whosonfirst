@@ -14,6 +14,7 @@ func EnsureWOFDepicts(feature []byte) ([]byte, error) {
 		"properties.millsfield:airline_id",
 		"properties.millsfield:airport_id",
 		"properties.millsfield:aircraft_id",
+		"properties.millsfield:company_id",		
 	}
 
 	for _, p := range paths {
