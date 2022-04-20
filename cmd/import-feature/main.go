@@ -26,6 +26,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
 	"log"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -45,6 +46,8 @@ func main() {
 	retries := flag.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
 	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
 
+	user_agent := flag.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
+	
 	var str_properties multi.KeyValueString
 	flag.Var(&str_properties, "string-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.")
 
@@ -68,6 +71,21 @@ func main() {
 
 	ctx := context.Background()
 
+	if *user_agent != "" {
+
+		wof_u, err := url.Parse(*wof_reader_uri)
+
+		if err != nil {
+			log.Fatalf("Failed to parse (WOF) reader URI, %v", err)
+		}
+
+		q := wof_u.Query()
+		q.Set("user-agent", *user_agent)
+
+		wof_u.RawQuery = q.Encode()
+		*wof_reader_uri = wof_u.String()
+	}
+	
 	wof_r, err := reader.NewReader(ctx, *wof_reader_uri)
 
 	if err != nil {
