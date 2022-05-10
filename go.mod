@@ -7,7 +7,6 @@ require (
 	github.com/sfomuseum/go-edtf v1.0.0
 	github.com/sfomuseum/go-flags v0.8.2
 	github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.6
-	github.com/sfomuseum/go-sfomuseum-reader v0.0.2
 	github.com/tidwall/gjson v1.14.1
 	github.com/tidwall/pretty v1.2.0
 	github.com/whosonfirst/go-ioutil v1.0.2
@@ -16,7 +15,7 @@ require (
 	github.com/whosonfirst/go-reader-http v0.3.0
 	github.com/whosonfirst/go-whosonfirst-export/v2 v2.4.3
 	github.com/whosonfirst/go-whosonfirst-feature v0.0.23
-	github.com/whosonfirst/go-whosonfirst-fetch v0.1.1
+	github.com/whosonfirst/go-whosonfirst-fetch v0.2.0
 	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.2
 	github.com/whosonfirst/go-whosonfirst-uri v1.2.0
 	github.com/whosonfirst/go-writer v0.8.0

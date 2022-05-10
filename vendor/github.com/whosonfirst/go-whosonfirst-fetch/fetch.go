@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
-	"github.com/whosonfirst/go-whosonfirst-log"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
 	"io"
-	// golog "log"
+	"log"
 	"strings"
 	"sync"
 	"time"
@@ -21,13 +19,13 @@ import (
 type Options struct {
 	Timings    bool
 	MaxClients int
-	Logger     *log.WOFLogger
+	Logger     *log.Logger
 	Retries    int
 }
 
 func DefaultOptions() (*Options, error) {
 
-	logger := log.SimpleWOFLogger()
+	logger := log.Default()
 
 	o := Options{
 		Timings:    false,
@@ -139,14 +137,14 @@ func (f *Fetcher) fetchID(ctx context.Context, id int64, belongs_to ...string) e
 	_, ok := f.processed.Load(id)
 
 	if ok {
-		f.options.Logger.Status("%d has already been processed, skipping", id)
+		f.options.Logger.Printf("%d has already been processed, skipping", id)
 		return nil
 	}
 
 	_, ok = f.processing.LoadOrStore(id, true)
 
 	if ok {
-		f.options.Logger.Debug("%d is being processed, skipping", id)
+		f.options.Logger.Printf("%d is being processed, skipping", id)
 		return nil
 	}
 
@@ -155,13 +153,13 @@ func (f *Fetcher) fetchID(ctx context.Context, id int64, belongs_to ...string) e
 		t1 := time.Now()
 
 		defer func() {
-			f.options.Logger.Status("Time to process %d: %v", id, time.Since(t1))
+			f.options.Logger.Printf("Time to process %d: %v", id, time.Since(t1))
 		}()
 	}
 
 	<-f.throttle
 
-	f.options.Logger.Debug("processing (%d)", id)
+	f.options.Logger.Printf("processing (%d)", id)
 
 	defer func() {
 		f.throttle <- true
@@ -225,24 +223,15 @@ func (f *Fetcher) fetchID(ctx context.Context, id int64, belongs_to ...string) e
 
 	if count_belongs_to > 0 {
 
-		br := bytes.NewReader(body)
-		fh := io.NopCloser(br)
-
-		ft, err := feature.LoadWOFFeatureFromReader(fh)
-
-		if err != nil {
-			return err
-		}
-
 		ids := make([]int64, 0)
 
 		if count_belongs_to == 1 && belongs_to[0] == "all" {
 
-			ids = whosonfirst.BelongsTo(ft)
+			ids = properties.BelongsTo(body)
 
 		} else {
 
-			hiers := whosonfirst.Hierarchies(ft)
+			hiers := properties.Hierarchies(body)
 
 			for _, h := range hiers {
 
