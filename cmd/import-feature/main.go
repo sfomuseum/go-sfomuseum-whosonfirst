@@ -17,18 +17,16 @@ import (
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/multi"
 	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
-	sfom_reader "github.com/sfomuseum/go-sfomuseum-reader"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
-	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
 	"log"
 	"net/url"
 	"os"
-	"strings"
+	_ "strings"
 )
 
 func main() {
@@ -47,7 +45,7 @@ func main() {
 	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
 
 	user_agent := flag.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
-	
+
 	var str_properties multi.KeyValueString
 	flag.Var(&str_properties, "string-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.")
 
@@ -85,7 +83,7 @@ func main() {
 		wof_u.RawQuery = q.Encode()
 		*wof_reader_uri = wof_u.String()
 	}
-	
+
 	wof_r, err := reader.NewReader(ctx, *wof_reader_uri)
 
 	if err != nil {
@@ -162,39 +160,15 @@ func main() {
 		log.Fatalf("Failed to fetch IDs, %v", err)
 	}
 
-	for _, id := range fetched_ids {
+	sfom_opts := &custom.SFOMuseumPropertiesOptions{
+		DataReader:       data_r,
+		DataWriter:       data_wr,
+		DataExporter:     data_ex,
+		PropertiesReader: props_r,
+		PropertiesWriter: props_wr,
+	}
 
-		// START OF put me in a package method or something
-
-		data_body, err := sfom_reader.LoadBytesFromID(ctx, data_r, id)
-
-		if err != nil {
-			log.Fatalf("Failed to read %d, %v", id, err)
-		}
-
-		data_pt, err := properties.Placetype(data_body)
-
-		if err != nil {
-			log.Fatalf("Failed to derive placetype for %d, %v", id, err)
-		}
-
-		props, err := custom.EnsureCustomProperties(ctx, props_r, props_wr, id)
-
-		if err != nil {
-			log.Fatalf("Failed to read custom properties for %d, %v", id, err)
-		}
-
-		props["wof:repo"] = "sfomuseum-data-whosonfirst"
-
-		switch data_pt {
-		case "campus":
-			props["sfomuseum:placetype"] = "airport"
-		case "locality":
-			props["sfomuseum:placetype"] = "city"
-		default:
-			props["sfomuseum:placetype"] = data_pt
-		}
-
+	/*
 		cli_props := false
 
 		for _, i := range ids {
@@ -207,12 +181,14 @@ func main() {
 
 		if cli_props {
 
+			custom_props := make(map[string]interface{})
+
 			for _, p := range str_properties {
 				path := p.Key()
 				value := p.Value()
 
 				path = strings.Replace(path, "properties.", "", 1)
-				props[path] = value
+				custom_props[path] = value
 			}
 
 			for _, p := range int_properties {
@@ -220,22 +196,18 @@ func main() {
 				value := p.Value()
 
 				path = strings.Replace(path, "properties.", "", 1)
-				props[path] = value
+				custom_props[path] = value
 			}
-		}
-		props = custom.ApplyEDTFFixes(ctx, data_body, props)
 
-		err = custom.WriteCustomProperties(ctx, props_wr, id, props)
-
-		if err != nil {
-			log.Fatalf("Failed to write custom properties for %d, %v", id, err)
+			sfom_opts.CustomProperties = custom_props
 		}
 
-		err = custom.MergeCustomProperties(ctx, props_r, data_r, data_wr, data_ex, id)
+	*/
 
-		if err != nil {
-			log.Fatalf("Failed to merge custom properties for %d, %v", id, err)
-		}
+	err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, fetched_ids...)
 
+	if err != nil {
+		log.Fatalf("Failed to apply SFO Museum properties, %v", err)
 	}
+
 }
