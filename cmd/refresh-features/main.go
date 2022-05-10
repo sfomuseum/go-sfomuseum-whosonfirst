@@ -10,22 +10,22 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
-	sfom_reader "github.com/sfomuseum/go-sfomuseum-reader"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
-	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
+	"io"
 	"log"
 	"net/url"
-	"os"
-	"strings"
-	"sync"
 )
 
 func main() {
+
+	iterator_uri := flag.String("data-iterator-uri", "repo://", "A valid whosonfirst/go-whosonfirst-iterate/v2 URI")
+	iterator_source := flag.String("data-iterator-source", "/usr/local/data/sfomuseum-data-whosonfirst", "...")
 
 	wof_reader_uri := flag.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
 
@@ -97,6 +97,12 @@ func main() {
 		log.Fatalf("Failed to create new exporter, %v", err)
 	}
 
+	fetcher_opts, err := fetch.DefaultOptions()
+
+	if err != nil {
+		log.Fatal("Failed to create fetch options, %v", err)
+	}
+
 	fetcher_opts.Retries = *retries
 	fetcher_opts.MaxClients = *max_clients
 
@@ -106,8 +112,18 @@ func main() {
 		log.Fatalf("Failed to create new fetcher, %v", err)
 	}
 
-	refreshed_ids := make([]int64, 0)
-	mu := new(sync.RWMutex)
+	sfom_opts := &custom.SFOMuseumPropertiesOptions{
+		DataReader:       data_r,
+		DataWriter:       data_wr,
+		DataExporter:     data_ex,
+		PropertiesReader: props_r,
+		PropertiesWriter: props_wr,
+	}
+
+	belongs_to := []string{
+		"region",
+		"country",
+	}
 
 	iter_cb := func(ctx context.Context, path string, r io.ReadSeeker, args ...interface{}) error {
 
@@ -117,22 +133,26 @@ func main() {
 			return fmt.Errorf("Failed to derive ID from %s, %w", path, err)
 		}
 
-		belongs_to := []string{
-			"region",
-			"country",
-		}
+		// START OF put me in a function
 
-		id, err = fetcher.FetchID(ctx, id, belongs_to...)
+		log.Println("START", path)
+		to_fetch := []int64{id}
+
+		_, err = fetcher.FetchIDs(ctx, to_fetch, belongs_to...)
 
 		if err != nil {
 			return fmt.Errorf("Failed to fetch %d (%s), %w", id, path, err)
 		}
 
-		mu.Lock()
-		defer mu.Unlock()
+		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, id)
 
-		refreshed_ids = append(refreshed_ids, id)
+		if err != nil {
+			return fmt.Errorf("Failed to apply SFO Museum properties for %d (%s), %v", id, path, err)
+		}
 
+		// END OF put me in a function
+
+		log.Println("DONE", path)		
 		return nil
 	}
 
@@ -146,19 +166,6 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("Failed to iterator URIs, %v", err)
-	}
-
-	merge_opts := &custom.MergePropertiesOptions{
-		DataReader:       data_r,
-		DataWriter:       data_wr,
-		PropertiesReader: props_r,
-		PropertiesWriter: props_wr,
-	}
-
-	err = custom.MergeProperites(ctx, merge_opts, fetched_ids...)
-
-	if err != nil {
-		log.Fatalf("Failed to merge properties, %v", err)
 	}
 
 }
