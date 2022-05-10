@@ -8,6 +8,7 @@ package main
 import (
 	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
+	_ "github.com/sfomuseum/go-sfomuseum-export/v2"	
 )
 
 import (
@@ -16,7 +17,6 @@ import (
 	"fmt"
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/multi"
-	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
@@ -26,7 +26,7 @@ import (
 	"log"
 	"net/url"
 	"os"
-	_ "strings"
+	"strings"
 )
 
 func main() {
@@ -148,27 +148,28 @@ func main() {
 
 		ids = append(ids, id)
 	}
-
+	
 	belongs_to := []string{
 		"region",
 		"country",
 	}
 
-	fetched_ids, err := fetcher.FetchIDs(ctx, ids, belongs_to...)
+	for _, id := range ids {
+	
+		fetched_ids, err := fetcher.FetchIDs(ctx, []int64{ id }, belongs_to...)
 
-	if err != nil {
-		log.Fatalf("Failed to fetch IDs, %v", err)
-	}
+		if err != nil {
+			log.Fatalf("Failed to fetch IDs, %v", err)
+		}
 
-	sfom_opts := &custom.SFOMuseumPropertiesOptions{
-		DataReader:       data_r,
-		DataWriter:       data_wr,
-		DataExporter:     data_ex,
-		PropertiesReader: props_r,
-		PropertiesWriter: props_wr,
-	}
-
-	/*
+		sfom_opts := &custom.SFOMuseumPropertiesOptions{
+			DataReader:       data_r,
+			DataWriter:       data_wr,
+			DataExporter:     data_ex,
+			PropertiesReader: props_r,
+			PropertiesWriter: props_wr,
+		}
+		
 		cli_props := false
 
 		for _, i := range ids {
@@ -202,12 +203,12 @@ func main() {
 			sfom_opts.CustomProperties = custom_props
 		}
 
-	*/
 
-	err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, fetched_ids...)
-
-	if err != nil {
-		log.Fatalf("Failed to apply SFO Museum properties, %v", err)
+		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, fetched_ids...)
+		
+		if err != nil {
+			log.Fatalf("Failed to apply SFO Museum properties, %v", err)
+		}
 	}
-
+	
 }

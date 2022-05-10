@@ -1,3 +1,5 @@
+// refresh-features is a command line tool for refreshing all the source Who's On First records in
+// the sfomuseum-data-whosonfirst repository.
 package main
 
 import (
