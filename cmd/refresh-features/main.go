@@ -136,13 +136,16 @@ func main() {
 
 		// START OF put me in a function
 
-		log.Println("START", path)
 		to_fetch := []int64{id}
 
 		_, err = fetcher.FetchIDs(ctx, to_fetch, belongs_to...)
 
 		if err != nil {
-			return fmt.Errorf("Failed to fetch %d (%s), %w", id, path, err)
+
+			fmt.Printf("Failed to fetch %d (%s), %v", id, path, err)
+			return nil
+			
+			// return fmt.Errorf("Failed to fetch %d (%s), %w", id, path, err)
 		}
 
 		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, id)
@@ -153,7 +156,6 @@ func main() {
 
 		// END OF put me in a function
 
-		log.Println("DONE", path)		
 		return nil
 	}
 
