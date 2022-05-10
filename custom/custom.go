@@ -1,6 +1,6 @@
-package custom
-
+// package custom provides methods for working with custom properties to be applied to Who's On First records.
 // This (and the corresponding tools in cmd) should be migrated in to a standalone whosonfirst/go-whosonfirst-custom package.
+package custom
 
 import (
 	"bytes"
