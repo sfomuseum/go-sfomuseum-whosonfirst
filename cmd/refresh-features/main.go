@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
+	_ "github.com/whosonfirst/go-reader-whosonfirst-data"	
 )
 
 import (
@@ -27,7 +28,7 @@ func main() {
 	iterator_uri := flag.String("data-iterator-uri", "repo://", "A valid whosonfirst/go-whosonfirst-iterate/v2 URI")
 	iterator_source := flag.String("data-iterator-source", "/usr/local/data/sfomuseum-data-whosonfirst", "...")
 
-	wof_reader_uri := flag.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
+	wof_reader_uri := flag.String("whosonfirst-reader-uri", "whosonfirst-data://", "A valid whosonfirst/go-reader URI.")
 
 	data_reader_uri := flag.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
 	properties_reader_uri := flag.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
@@ -165,7 +166,7 @@ func main() {
 	err = iter.IterateURIs(ctx, *iterator_source)
 
 	if err != nil {
-		log.Fatalf("Failed to iterator URIs, %v", err)
+		log.Fatalf("Failed to iterate URIs, %v", err)
 	}
 
 }
