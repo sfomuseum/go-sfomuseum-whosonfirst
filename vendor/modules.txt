@@ -220,7 +220,7 @@ github.com/whosonfirst/go-whosonfirst-export/v2/properties
 # github.com/whosonfirst/go-whosonfirst-feature v0.0.23
 ## explicit
 github.com/whosonfirst/go-whosonfirst-feature/properties
-# github.com/whosonfirst/go-whosonfirst-fetch v0.2.0
+# github.com/whosonfirst/go-whosonfirst-fetch v1.0.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-fetch
 # github.com/whosonfirst/go-whosonfirst-findingaid/v2 v2.5.0

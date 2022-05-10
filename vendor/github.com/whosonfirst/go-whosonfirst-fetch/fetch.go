@@ -16,13 +16,20 @@ import (
 	"time"
 )
 
+// Options is a struct containing configuration options for fetching Who's On First record
 type Options struct {
-	Timings    bool
+	// Timings is a boolean flag to indicate whether timings should be recorded
+	Timings bool
+	// MaxClients is the number of simultaneous clients in use to fetch Who's On First records
 	MaxClients int
-	Logger     *log.Logger
-	Retries    int
+	// Logger is a `log.Logger` instance for providing feedback
+	Logger *log.Logger
+	// Retries is the number of times to retry a failed attemp to fetch a Who's On First record
+	Retries int
 }
 
+// DefaultOptions returns a `Options` instance with: timings and retries disabled, the maximum number of simultaneous
+// clients set to 10 and a `log.Default` logging instance.
 func DefaultOptions() (*Options, error) {
 
 	logger := log.Default()
@@ -37,6 +44,7 @@ func DefaultOptions() (*Options, error) {
 	return &o, nil
 }
 
+// type Fetcher is a struct for retrieving Who's On First documents.
 type Fetcher struct {
 	reader     reader.Reader
 	writer     writer.Writer
@@ -46,6 +54,8 @@ type Fetcher struct {
 	options    *Options
 }
 
+// NewFetcher returns a new `Fecther` instance configured to read Who's On First documents using 'rdr' and to store
+// them using 'wr'. Additional configuration options are defined by 'opts'
 func NewFetcher(ctx context.Context, rdr reader.Reader, wr writer.Writer, opts *Options) (*Fetcher, error) {
 
 	processing := new(sync.Map)
@@ -70,6 +80,9 @@ func NewFetcher(ctx context.Context, rdr reader.Reader, wr writer.Writer, opts *
 	return &f, nil
 }
 
+// FetchIDs retrieves Who's On First documents matching 'ids'. If 'belongs_to' is non-empty it is assumed to be
+// a list of valid Who's On First placetypes and used to determine additional ancestor records listed in each
+// record retrieved that will subsequently be fetched.
 func (f *Fetcher) FetchIDs(ctx context.Context, ids []int64, belongs_to ...string) ([]int64, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -107,6 +120,10 @@ func (f *Fetcher) FetchIDs(ctx context.Context, ids []int64, belongs_to ...strin
 	return processed, nil
 }
 
+// FetchID will retrieve the Who's On First record for 'id'. If 'belongs_to' is non-empty it is assumed to be
+// a list of valid Who's On First placetypes and used to determine additional ancestor records listed in each
+// record retrieved that will subsequently be fetched. This method is designed to be run in a Go routine and
+// signals the 'done_ch' and 'err_ch' channels with it is complete or an error is triggered.
 func (f *Fetcher) FetchID(ctx context.Context, id int64, fetch_belongsto []string, done_ch chan bool, err_ch chan error) {
 
 	defer func() {
@@ -128,6 +145,9 @@ func (f *Fetcher) FetchID(ctx context.Context, id int64, fetch_belongsto []strin
 	}
 }
 
+// fetchID will retrieve the Who's On First record for 'id'. If 'belongs_to' is non-empty it is assumed to be
+// a list of valid Who's On First placetypes and used to determine additional ancestor records listed in each
+// record retrieved that will subsequently be fetched.
 func (f *Fetcher) fetchID(ctx context.Context, id int64, belongs_to ...string) error {
 
 	if id < 0 {

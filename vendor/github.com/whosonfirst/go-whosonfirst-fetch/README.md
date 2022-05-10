@@ -2,6 +2,10 @@
 
 Tools for fetching Who's On First records and their ancestors.
 
+## Documentation
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/whosonfirst/go-whosonfirst-fetch.svg)](https://pkg.go.dev/github.com/whosonfirst/go-whosonfirst-fetch)
+
 ## Example
 
 ```
@@ -123,3 +127,4 @@ Writers exported by the following packages are available to the `fetch` tool:
 * https://github.com/whosonfirst/go-reader-whosonfirst-data
 * https://github.com/whosonfirst/go-reader-http
 * https://github.com/whosonfirst/go-writer
+* https://github.com/whosonfirst/go-whosonfirst-findingaid
