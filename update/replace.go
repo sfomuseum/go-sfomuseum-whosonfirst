@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/paulmach/orb/geojson"
 	"github.com/sfomuseum/go-edtf"
-	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer"
+	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v2"
 	"github.com/whosonfirst/go-reader"
+	wof_reader "github.com/whosonfirst/go-whosonfirst-reader"
 	"github.com/whosonfirst/go-writer"
 	"strings"
 )
@@ -16,7 +17,7 @@ import (
 // of the same concerns as CreateWithFeature and the two methods should, where possible, be reconciled.
 func ReplaceWithSelf(ctx context.Context, r reader.Reader, wr writer.Writer, old_id int64, new_parent_id int64, date string) (int64, error) {
 
-	tmp_f, err := LoadFeature(ctx, r, old_id)
+	tmp_f, err := wof_reader.LoadFeature(ctx, r, old_id)
 
 	if err != nil {
 		return -1, err
@@ -29,7 +30,7 @@ func ReplaceWithSelf(ctx context.Context, r reader.Reader, wr writer.Writer, old
 // in the ReplaceWithSelf method.
 func ReplaceWithFeature(ctx context.Context, r reader.Reader, wr writer.Writer, tmp_f *geojson.Feature, old_id int64, new_parent_id int64, date string) (int64, error) {
 
-	old_f, err := LoadFeature(ctx, r, old_id)
+	old_f, err := wof_reader.LoadFeature(ctx, r, old_id)
 
 	if err != nil {
 		return -1, fmt.Errorf("Failed to load %d, %v", old_id, err)
@@ -77,7 +78,7 @@ func ReplaceWithFeature(ctx context.Context, r reader.Reader, wr writer.Writer, 
 		// pass
 	} else {
 
-		parent_f, err := LoadFeature(ctx, r, new_parent_id)
+		parent_f, err := wof_reader.LoadFeature(ctx, r, new_parent_id)
 
 		if err != nil {
 			return -1, fmt.Errorf("Failed to load parent %d, %v", new_parent_id, err)
@@ -109,13 +110,7 @@ func ReplaceWithFeature(ctx context.Context, r reader.Reader, wr writer.Writer, 
 
 	new_f.Properties = new_props
 
-	enc_f, err := new_f.MarshalJSON()
-
-	if err != nil {
-		return -1, err
-	}
-
-	new_id, err := sfom_writer.WriteFeatureBytes(ctx, wr, enc_f)
+	new_id, err := sfom_writer.WriteFeature(ctx, wr, new_f)
 
 	if err != nil {
 		return -1, err
@@ -143,16 +138,10 @@ func ReplaceWithFeature(ctx context.Context, r reader.Reader, wr writer.Writer, 
 
 	old_f.Properties = old_props
 
-	old_enc, err := old_f.MarshalJSON()
+	_, err = sfom_writer.WriteFeature(ctx, wr, old_f)
 
 	if err != nil {
-		return new_id, err
-	}
-
-	_, err = sfom_writer.WriteFeatureBytes(ctx, wr, old_enc)
-
-	if err != nil {
-		return new_id, err
+		return -1, err
 	}
 
 	return new_id, err

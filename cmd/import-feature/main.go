@@ -6,9 +6,9 @@
 package main
 
 import (
+	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
 	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
-	_ "github.com/sfomuseum/go-sfomuseum-export/v2"	
 )
 
 import (
@@ -148,15 +148,15 @@ func main() {
 
 		ids = append(ids, id)
 	}
-	
+
 	belongs_to := []string{
 		"region",
 		"country",
 	}
 
 	for _, id := range ids {
-	
-		fetched_ids, err := fetcher.FetchIDs(ctx, []int64{ id }, belongs_to...)
+
+		fetched_ids, err := fetcher.FetchIDs(ctx, []int64{id}, belongs_to...)
 
 		if err != nil {
 			log.Fatalf("Failed to fetch IDs, %v", err)
@@ -169,7 +169,7 @@ func main() {
 			PropertiesReader: props_r,
 			PropertiesWriter: props_wr,
 		}
-		
+
 		cli_props := false
 
 		for _, i := range ids {
@@ -203,12 +203,11 @@ func main() {
 			sfom_opts.CustomProperties = custom_props
 		}
 
-
 		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, fetched_ids...)
-		
+
 		if err != nil {
 			log.Fatalf("Failed to apply SFO Museum properties, %v", err)
 		}
 	}
-	
+
 }

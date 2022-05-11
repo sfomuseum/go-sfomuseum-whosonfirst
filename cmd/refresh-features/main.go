@@ -5,7 +5,7 @@ package main
 import (
 	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
-	_ "github.com/whosonfirst/go-reader-whosonfirst-data"	
+	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
 )
 
 import (
@@ -146,7 +146,7 @@ func main() {
 
 			fmt.Printf("Failed to fetch %d (%s), %v", id, path, err)
 			return nil
-			
+
 			// return fmt.Errorf("Failed to fetch %d (%s), %w", id, path, err)
 		}
 

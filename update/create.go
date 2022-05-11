@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/paulmach/orb/geojson"
 	"github.com/sfomuseum/go-edtf"
-	sfom_reader "github.com/sfomuseum/go-sfomuseum-reader"
-	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer"
+	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v2"
 	"github.com/whosonfirst/go-reader"
+	wof_reader "github.com/whosonfirst/go-whosonfirst-reader"
 	"github.com/whosonfirst/go-writer"
 	"strings"
 )
@@ -65,7 +65,7 @@ func CreateWithFeature(ctx context.Context, r reader.Reader, wr writer.Writer, t
 		}
 	}
 
-	parent_body, err := sfom_reader.LoadBytesFromID(ctx, r, parent_id)
+	parent_body, err := wof_reader.LoadBytes(ctx, r, parent_id)
 
 	if err != nil {
 		return -1, fmt.Errorf("Failed to load parent feature %d, %v", parent_id, err)
@@ -125,13 +125,7 @@ func CreateWithFeature(ctx context.Context, r reader.Reader, wr writer.Writer, t
 
 	new_f.Properties = new_props
 
-	enc_f, err := new_f.MarshalJSON()
-
-	if err != nil {
-		return -1, err
-	}
-
-	new_id, err := sfom_writer.WriteFeatureBytes(ctx, wr, enc_f)
+	new_id, err := sfom_writer.WriteFeature(ctx, wr, new_f)
 
 	if err != nil {
 		return -1, err
