@@ -12,7 +12,7 @@ github.com/aaronland/go-brooklynintegers-api
 github.com/aaronland/go-json-query
 # github.com/aaronland/go-pool v1.0.0
 github.com/aaronland/go-pool
-# github.com/aaronland/go-roster v0.0.2
+# github.com/aaronland/go-roster v1.0.0
 github.com/aaronland/go-roster
 # github.com/aaronland/go-string v0.1.2
 github.com/aaronland/go-string/dsn
@@ -163,13 +163,13 @@ github.com/mattn/go-sqlite3
 github.com/mitchellh/go-wordwrap
 # github.com/natefinch/atomic v1.0.1
 github.com/natefinch/atomic
-# github.com/paulmach/orb v0.7.0
+# github.com/paulmach/orb v0.7.1
 ## explicit
 github.com/paulmach/orb
 github.com/paulmach/orb/geojson
 github.com/paulmach/orb/internal/length
 github.com/paulmach/orb/planar
-# github.com/sfomuseum/go-edtf v1.0.0
+# github.com/sfomuseum/go-edtf v1.1.1
 ## explicit
 github.com/sfomuseum/go-edtf
 github.com/sfomuseum/go-edtf/calendar
@@ -183,11 +183,11 @@ github.com/sfomuseum/go-edtf/tests
 # github.com/sfomuseum/go-flags v0.8.2
 ## explicit
 github.com/sfomuseum/go-flags/multi
-# github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.6
+# github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.7
 ## explicit
 github.com/sfomuseum/go-sfomuseum-export/v2
 github.com/sfomuseum/go-sfomuseum-export/v2/properties
-# github.com/sfomuseum/go-sfomuseum-writer/v2 v2.0.1
+# github.com/sfomuseum/go-sfomuseum-writer/v2 v2.0.3
 ## explicit
 github.com/sfomuseum/go-sfomuseum-writer/v2
 # github.com/tidwall/gjson v1.14.1
@@ -203,7 +203,7 @@ github.com/tidwall/sjson
 # github.com/whosonfirst/go-ioutil v1.0.2
 ## explicit
 github.com/whosonfirst/go-ioutil
-# github.com/whosonfirst/go-reader v0.11.0
+# github.com/whosonfirst/go-reader v1.0.1
 ## explicit
 github.com/whosonfirst/go-reader
 # github.com/whosonfirst/go-reader-github v0.4.2
@@ -217,7 +217,7 @@ github.com/whosonfirst/go-reader-http
 github.com/whosonfirst/go-reader-whosonfirst-data
 # github.com/whosonfirst/go-whosonfirst-crawl v0.2.1
 github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-export/v2 v2.4.4
+# github.com/whosonfirst/go-whosonfirst-export/v2 v2.4.5
 ## explicit
 github.com/whosonfirst/go-whosonfirst-export/v2
 github.com/whosonfirst/go-whosonfirst-export/v2/properties
@@ -243,7 +243,7 @@ github.com/whosonfirst/go-whosonfirst-iterate/v2/filters
 github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator
 # github.com/whosonfirst/go-whosonfirst-log v0.1.0
 github.com/whosonfirst/go-whosonfirst-log
-# github.com/whosonfirst/go-whosonfirst-reader v1.0.0
+# github.com/whosonfirst/go-whosonfirst-reader v1.0.1
 ## explicit
 github.com/whosonfirst/go-whosonfirst-reader
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
@@ -252,9 +252,9 @@ github.com/whosonfirst/go-whosonfirst-sources/sources
 # github.com/whosonfirst/go-whosonfirst-uri v1.2.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-uri
-# github.com/whosonfirst/go-whosonfirst-writer/v2 v2.0.0
+# github.com/whosonfirst/go-whosonfirst-writer/v2 v2.0.2
 github.com/whosonfirst/go-whosonfirst-writer/v2
-# github.com/whosonfirst/go-writer v0.8.0
+# github.com/whosonfirst/go-writer v1.0.1
 ## explicit
 github.com/whosonfirst/go-writer
 # github.com/whosonfirst/walk v0.0.1
