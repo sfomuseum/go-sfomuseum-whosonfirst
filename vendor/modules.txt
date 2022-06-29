@@ -206,7 +206,7 @@ github.com/whosonfirst/go-ioutil
 # github.com/whosonfirst/go-reader v1.0.1
 ## explicit
 github.com/whosonfirst/go-reader
-# github.com/whosonfirst/go-reader-github v0.4.2
+# github.com/whosonfirst/go-reader-github v0.4.3
 ## explicit
 github.com/whosonfirst/go-reader-github
 # github.com/whosonfirst/go-reader-http v0.3.0
@@ -297,7 +297,7 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+# golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
 # golang.org/x/sys v0.0.0-20220330033206-e17cdc41300f

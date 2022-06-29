@@ -13,7 +13,7 @@ require (
 	github.com/tidwall/pretty v1.2.0
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.1
-	github.com/whosonfirst/go-reader-github v0.4.2
+	github.com/whosonfirst/go-reader-github v0.4.3
 	github.com/whosonfirst/go-reader-http v0.3.0
 	github.com/whosonfirst/go-reader-whosonfirst-data v1.4.0
 	github.com/whosonfirst/go-whosonfirst-export/v2 v2.4.5

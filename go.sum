@@ -565,8 +565,9 @@ github.com/whosonfirst/go-reader v0.10.0/go.mod h1:YNcxm9xr0++Jz4nXWZjtQ/RRVq0fC
 github.com/whosonfirst/go-reader v0.11.0/go.mod h1:sj+z1x90XEBy/QBy5nuBa7EGntGAC2QhbAW1Y1QZ5nM=
 github.com/whosonfirst/go-reader v1.0.1 h1:mvEqObVuzJyZkI37SDmuvCpTJ2iEG5GUgD2Z3mT2e7s=
 github.com/whosonfirst/go-reader v1.0.1/go.mod h1:3RXON51sbyPw8Ca7sxxwOItVfx8SM+KFPR+l2azGxJA=
-github.com/whosonfirst/go-reader-github v0.4.2 h1:UOOeorUm0e5ryxG2043KadtnCT+f0nbiMbKReS7y5Vo=
 github.com/whosonfirst/go-reader-github v0.4.2/go.mod h1:+x9HvzlBwiyHHuHQ8dOzSRccvxFSRLApIMCSkzb77nQ=
+github.com/whosonfirst/go-reader-github v0.4.3 h1:v/RJiNS6RS4AjdqefUd5X21l2+KdodM4zU9FIMnProA=
+github.com/whosonfirst/go-reader-github v0.4.3/go.mod h1:a1NzHH990mSnhpUwayfyq1AW47ukF2etZaR8Ol9vjK0=
 github.com/whosonfirst/go-reader-http v0.3.0 h1:EgHoK6jSfa3kkyx8pS4eFgzK+Egv2F4LukadPDTtEDQ=
 github.com/whosonfirst/go-reader-http v0.3.0/go.mod h1:lxrCTVQlcysPs+P9USTB/QeedtZjd4olIdms5nGMkXs=
 github.com/whosonfirst/go-reader-whosonfirst-data v1.4.0 h1:B67thGrM+nPAnYVxTOaB3pRmCmpn7mCeTp2bQeyKdB0=
@@ -784,8 +785,9 @@ golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1/go.mod h1:KelEdhl1UZF7XfJ
 golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b/go.mod h1:DAh4E804XQdzx2j+YRIaUnCqCV2RuMz24cGBJ5QYIrc=
 golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a/go.mod h1:DAh4E804XQdzx2j+YRIaUnCqCV2RuMz24cGBJ5QYIrc=
-golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 h1:OSnWWcOd/CtWQC2cYSBgbTSJv3ciqd8r54ySIW2y3RE=
 golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5/go.mod h1:DAh4E804XQdzx2j+YRIaUnCqCV2RuMz24cGBJ5QYIrc=
+golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401 h1:zwrSfklXn0gxyLRX/aR+q6cgHbV/ItVyzbPlbA+dkAw=
+golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401/go.mod h1:DAh4E804XQdzx2j+YRIaUnCqCV2RuMz24cGBJ5QYIrc=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
