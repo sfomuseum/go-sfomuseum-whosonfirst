@@ -12,8 +12,11 @@ import (
 	_ "strings"
 )
 
+// SFOMuseumPropertiesOptions is a struct containing configuration option for updating Who's On First records with SFO Museum specific properties.
 type SFOMuseumPropertiesOptions struct {
+	// DataReader is a `whosonfirst/go-reader.Reader` instance used to read Who's On First records.
 	DataReader       reader.Reader
+	// DataReader is a `whosonfirst/go-writer.Writer` instance used to write Who's On First records.	
 	DataWriter       writer.Writer
 	DataExporter     export.Exporter
 	PropertiesReader reader.Reader
@@ -21,6 +24,7 @@ type SFOMuseumPropertiesOptions struct {
 	CustomProperties map[string]interface{}
 }
 
+// ApplySFOMuseumProperties updates one or more Who's On First records identified by 'ids' with SFO Museum specific properties.
 func ApplySFOMuseumProperties(ctx context.Context, opts *SFOMuseumPropertiesOptions, ids ...int64) error {
 
 	// TBD: Do this concurrently?
