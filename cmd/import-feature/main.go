@@ -101,19 +101,19 @@ func main() {
 	data_wr, err := writer.NewWriter(ctx, *data_writer_uri)
 
 	if err != nil {
-		log.Fatal("Failed to create new data writer, %v", err)
+		log.Fatalf("Failed to create new data writer, %v", err)
 	}
 
 	props_wr, err := writer.NewWriter(ctx, *properties_writer_uri)
 
 	if err != nil {
-		log.Fatal("Failed to create new properties writer, %v", err)
+		log.Fatalf("Failed to create new properties writer, %v", err)
 	}
 
 	fetcher_opts, err := fetch.DefaultOptions()
 
 	if err != nil {
-		log.Fatal("Failed to create fetch options, %v", err)
+		log.Fatalf("Failed to create fetch options, %v", err)
 	}
 
 	fetcher_opts.Retries = *retries
@@ -122,7 +122,7 @@ func main() {
 	fetcher, err := fetch.NewFetcher(ctx, wof_r, data_wr, fetcher_opts)
 
 	if err != nil {
-		log.Fatal("Failed to create new fetcher, %v", err)
+		log.Fatalf("Failed to create new fetcher, %v", err)
 	}
 
 	uris := flag.Args()

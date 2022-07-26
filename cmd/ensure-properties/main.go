@@ -1,4 +1,4 @@
-// merge-properties iterates over a collection of Who's On First records and merges custom properties.
+// ensure-properties iterates over a collection of Who's On First records and ensures that there is a corresponding properties JSON file.
 package main
 
 import (
@@ -13,6 +13,7 @@ import (
 	"github.com/whosonfirst/go-writer"
 	"io"
 	"log"
+	"os"
 )
 
 func main() {
@@ -21,6 +22,12 @@ func main() {
 
 	properties_reader_uri := flag.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader.Reader URI.")
 	properties_writer_uri := flag.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer.Writer URI.")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "ensure-properties iterates over a collection of Who's On First records and ensures that there is a corresponding properties JSON file.\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n\t %s [options] uri(N) uri(N)\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 
 	flag.Parse()
 

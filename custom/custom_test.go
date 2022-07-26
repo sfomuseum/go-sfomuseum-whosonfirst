@@ -12,18 +12,18 @@ func TestReadCustomProperties(t *testing.T) {
 	t.Skip()
 }
 
-func WriteCustomProperties(t *testing.T) {
+func TestWriteCustomProperties(t *testing.T) {
 	t.Skip()
 }
 
-func EnsureCustomProperties(t *testing.T) {
+func TestEnsureCustomProperties(t *testing.T) {
 	t.Skip()
 }
 
-func CreateCustomProperties(t *testing.T) {
+func TestCreateCustomProperties(t *testing.T) {
 	t.Skip()
 }
 
-func MergeCustomProperties(t *testing.T) {
+func TestMergeCustomProperties(t *testing.T) {
 	t.Skip()
 }

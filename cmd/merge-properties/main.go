@@ -12,6 +12,7 @@ import (
 	"github.com/whosonfirst/go-writer"
 	"io"
 	"log"
+	"os"
 )
 
 func main() {
@@ -22,6 +23,12 @@ func main() {
 
 	reader_uri := flag.String("reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader.Reader URI.")
 	writer_uri := flag.String("writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer.Writer URI.")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "merge-properties iterates over a collection of Who's On First records and merges custom properties.\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n\t %s [options] record(N) record(N)\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 
 	flag.Parse()
 

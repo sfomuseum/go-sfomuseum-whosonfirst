@@ -14,12 +14,12 @@ import (
 // SFOMuseumPropertiesOptions is a struct containing configuration option for updating Who's On First records with SFO Museum specific properties.
 type SFOMuseumPropertiesOptions struct {
 	// DataReader is a `whosonfirst/go-reader.Reader` instance used to read Who's On First records.
-	DataReader       reader.Reader
-	// DataReader is a `whosonfirst/go-writer.Writer` instance used to write Who's On First records.	
-	DataWriter       writer.Writer
+	DataReader reader.Reader
+	// DataReader is a `whosonfirst/go-writer.Writer` instance used to write Who's On First records.
+	DataWriter writer.Writer
 	// PropertiesReader is a a `whosonfirst/go-reader.Reader` instance used to read SFO Museum properties.
 	PropertiesReader reader.Reader
-	// PropertiesWriter is a a `whosonfirst/go-writer.ReaderWriter` instance used to writer SFO Museum properties.	
+	// PropertiesWriter is a a `whosonfirst/go-writer.ReaderWriter` instance used to writer SFO Museum properties.
 	PropertiesWriter writer.Writer
 	// CustomProperties is a dictionary containing SFO Museum properties to append to a Who's On First record.
 	CustomProperties map[string]interface{}

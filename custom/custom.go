@@ -7,13 +7,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v2"
 	"github.com/tidwall/pretty"
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"	
 	"github.com/whosonfirst/go-writer"
-	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v2"
 	"io"
 	"path/filepath"
 )
@@ -165,11 +165,11 @@ func MergeCustomProperties(ctx context.Context, props_r reader.Reader, data_r re
 	if changed {
 
 		_, err = sfom_writer.WriteBytes(ctx, data_wr, new_body)
-		
+
 		if err != nil {
-			return fmt.Errorf("Failed to write feature for '%d', %w", err)
+			return fmt.Errorf("Failed to write feature for '%d', %w", id, err)
 		}
 	}
-	
+
 	return nil
 }

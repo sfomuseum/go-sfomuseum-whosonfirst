@@ -21,6 +21,7 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"os"
 )
 
 func main() {
@@ -40,6 +41,12 @@ func main() {
 	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
 
 	user_agent := flag.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "refresh-features is a command line tool for refreshing all the source Who's On First records in the sfomuseum-data-whosonfirst repository.\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n\t %s [options]\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 
 	flag.Parse()
 
@@ -81,19 +88,19 @@ func main() {
 	data_wr, err := writer.NewWriter(ctx, *data_writer_uri)
 
 	if err != nil {
-		log.Fatal("Failed to create new data writer, %v", err)
+		log.Fatalf("Failed to create new data writer, %v", err)
 	}
 
 	props_wr, err := writer.NewWriter(ctx, *properties_writer_uri)
 
 	if err != nil {
-		log.Fatal("Failed to create new properties writer, %v", err)
+		log.Fatalf("Failed to create new properties writer, %v", err)
 	}
 
 	fetcher_opts, err := fetch.DefaultOptions()
 
 	if err != nil {
-		log.Fatal("Failed to create fetch options, %v", err)
+		log.Fatalf("Failed to create fetch options, %v", err)
 	}
 
 	fetcher_opts.Retries = *retries
