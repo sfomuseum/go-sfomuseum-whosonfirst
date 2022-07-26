@@ -184,7 +184,6 @@ github.com/sfomuseum/go-edtf/tests
 ## explicit
 github.com/sfomuseum/go-flags/multi
 # github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.7
-## explicit
 github.com/sfomuseum/go-sfomuseum-export/v2
 github.com/sfomuseum/go-sfomuseum-export/v2/properties
 # github.com/sfomuseum/go-sfomuseum-writer/v2 v2.0.3
@@ -236,7 +235,7 @@ github.com/whosonfirst/go-whosonfirst-flags/existential
 github.com/whosonfirst/go-whosonfirst-format
 # github.com/whosonfirst/go-whosonfirst-id v0.0.4
 github.com/whosonfirst/go-whosonfirst-id
-# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.2
+# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.1.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-iterate/v2/emitter
 github.com/whosonfirst/go-whosonfirst-iterate/v2/filters

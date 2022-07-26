@@ -12,10 +12,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
@@ -37,8 +35,6 @@ func main() {
 
 	data_writer_uri := flag.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
 	properties_writer_uri := flag.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
-
-	data_exporter_uri := flag.String("data-exporter-uri", "sfomuseum://", "A valid whosonfirst/go-whosonfirst-export URI.")
 
 	retries := flag.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
 	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
@@ -94,12 +90,6 @@ func main() {
 		log.Fatal("Failed to create new properties writer, %v", err)
 	}
 
-	data_ex, err := export.NewExporter(ctx, *data_exporter_uri)
-
-	if err != nil {
-		log.Fatalf("Failed to create new exporter, %v", err)
-	}
-
 	fetcher_opts, err := fetch.DefaultOptions()
 
 	if err != nil {
@@ -118,7 +108,6 @@ func main() {
 	sfom_opts := &custom.SFOMuseumPropertiesOptions{
 		DataReader:       data_r,
 		DataWriter:       data_wr,
-		DataExporter:     data_ex,
 		PropertiesReader: props_r,
 		PropertiesWriter: props_wr,
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
@@ -18,9 +17,11 @@ type SFOMuseumPropertiesOptions struct {
 	DataReader       reader.Reader
 	// DataReader is a `whosonfirst/go-writer.Writer` instance used to write Who's On First records.	
 	DataWriter       writer.Writer
-	DataExporter     export.Exporter
+	// PropertiesReader is a a `whosonfirst/go-reader.Reader` instance used to read SFO Museum properties.
 	PropertiesReader reader.Reader
+	// PropertiesWriter is a a `whosonfirst/go-writer.ReaderWriter` instance used to writer SFO Museum properties.	
 	PropertiesWriter writer.Writer
+	// CustomProperties is a dictionary containing SFO Museum properties to append to a Who's On First record.
 	CustomProperties map[string]interface{}
 }
 
@@ -100,7 +101,7 @@ func applySFOMuseumProperties(ctx context.Context, opts *SFOMuseumPropertiesOpti
 		return fmt.Errorf("Failed to write custom properties for %d, %v", id, err)
 	}
 
-	err = MergeCustomProperties(ctx, opts.PropertiesReader, opts.DataReader, opts.DataWriter, opts.DataExporter, id)
+	err = MergeCustomProperties(ctx, opts.PropertiesReader, opts.DataReader, opts.DataWriter, id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to merge custom properties for %d, %v", id, err)

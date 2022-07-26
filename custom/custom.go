@@ -10,9 +10,10 @@ import (
 	"github.com/tidwall/pretty"
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/whosonfirst/go-whosonfirst-export/v2"	
 	"github.com/whosonfirst/go-writer"
+	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v2"
 	"io"
 	"path/filepath"
 )
@@ -119,8 +120,8 @@ func CreateCustomProperties(ctx context.Context, wr writer.Writer, id int64) (ma
 }
 
 // MergeCustomProperties will merge the custom properties for id read from props_r in to a WOF record (for id) read from data_r. The merged document will
-// be exported using data_ex and published using data_wr.
-func MergeCustomProperties(ctx context.Context, props_r reader.Reader, data_r reader.Reader, data_wr writer.Writer, data_ex export.Exporter, id int64) error {
+// be exported and published using data_wr.
+func MergeCustomProperties(ctx context.Context, props_r reader.Reader, data_r reader.Reader, data_wr writer.Writer, id int64) error {
 
 	data_path, err := uri.Id2RelPath(id)
 
@@ -161,34 +162,14 @@ func MergeCustomProperties(ctx context.Context, props_r reader.Reader, data_r re
 		return fmt.Errorf("Failed to assign properties for '%s', %v", data_path, err)
 	}
 
-	if !changed {
-		return nil
+	if changed {
+
+		_, err = sfom_writer.WriteBytes(ctx, data_wr, new_body)
+		
+		if err != nil {
+			return fmt.Errorf("Failed to write feature for '%d', %w", err)
+		}
 	}
-
-	new_body, err = data_ex.Export(ctx, new_body)
-
-	if err != nil {
-		return fmt.Errorf("Failed to export feature ID '%d', %v", id, err)
-	}
-
-	br := bytes.NewReader(new_body)
-	cl, err := ioutil.NewReadSeekCloser(br)
-
-	if err != nil {
-		return fmt.Errorf("Failed to create new ReadSeekCloser for '%d', %v", id, err)
-	}
-
-	rel_path, err := uri.Id2RelPath(id)
-
-	if err != nil {
-		return fmt.Errorf("Failed to derive relative path for '%d', %v", id, err)
-	}
-
-	_, err = data_wr.Write(ctx, rel_path, cl)
-
-	if err != nil {
-		return fmt.Errorf("Failed to write '%s', %v", rel_path, err)
-	}
-
+	
 	return nil
 }

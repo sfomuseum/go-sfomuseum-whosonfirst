@@ -5,10 +5,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	_ "github.com/sfomuseum/go-sfomuseum-export/v2"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
@@ -24,8 +22,6 @@ func main() {
 
 	reader_uri := flag.String("reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader.Reader URI.")
 	writer_uri := flag.String("writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer.Writer URI.")
-
-	exporter_uri := flag.String("exporter-uri", "sfomuseum://", "A valid whosonfirst/go-export/v2.Exporter URI.")
 
 	flag.Parse()
 
@@ -51,12 +47,6 @@ func main() {
 		log.Fatalf("Failed to create (properties) reader, %v", err)
 	}
 
-	ex, err := export.NewExporter(ctx, *exporter_uri)
-
-	if err != nil {
-		log.Fatalf("Failed to create exporter, %v", err)
-	}
-
 	iter_cb := func(ctx context.Context, path string, fh io.ReadSeeker, args ...interface{}) error {
 
 		id, uri_args, err := uri.ParseURI(path)
@@ -69,7 +59,7 @@ func main() {
 			return nil
 		}
 
-		err = custom.MergeCustomProperties(ctx, props_r, r, wr, ex, id)
+		err = custom.MergeCustomProperties(ctx, props_r, r, wr, id)
 
 		if err != nil {
 			return fmt.Errorf("Failed to merge properties for %d, %w", id, err)
