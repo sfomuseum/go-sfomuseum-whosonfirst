@@ -3,6 +3,7 @@ module github.com/sfomuseum/go-sfomuseum-whosonfirst
 go 1.16
 
 require (
+	github.com/aws/aws-lambda-go v1.10.0
 	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/paulmach/orb v0.7.1
 	github.com/sfomuseum/go-edtf v1.1.1
@@ -22,4 +23,6 @@ require (
 	github.com/whosonfirst/go-whosonfirst-reader v1.0.1
 	github.com/whosonfirst/go-whosonfirst-uri v1.2.0
 	github.com/whosonfirst/go-writer v1.0.1
+	github.com/whosonfirst/go-writer-github v0.7.0
+	gocloud.dev v0.26.0
 )

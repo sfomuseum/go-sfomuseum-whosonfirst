@@ -8,11 +8,16 @@ package main
 import (
 	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
+	_ "github.com/whosonfirst/go-writer-github"
+	_ "gocloud.dev/runtimevar/awsparamstore"
+	_ "gocloud.dev/runtimevar/constantvar"
+	_ "gocloud.dev/runtimevar/filevar"	
 )
 
 import (
 	"context"
 	"fmt"
+	"github.com/aws/aws-lambda-go/lambda"	
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
@@ -209,7 +214,24 @@ func main() {
 		}
 
 	case "lambda":
-		// pass
+
+		type ImportEvent struct {
+			Ids []int64 `json:"ids"`
+		}
+
+		handler := func(ctx context.Context, ev ImportEvent) error {
+
+			err := wof_import.ImportFeatures(ctx, import_opts, ev.Ids...)
+			
+			if err != nil {
+				return fmt.Errorf("Failed to import IDs, %v", err)
+			}
+
+			return nil
+		}
+
+		lambda.Start(handler)		
+
 	default:
 		log.Fatalf("Invalid or unsupported mode: %s", *mode)
 	}
