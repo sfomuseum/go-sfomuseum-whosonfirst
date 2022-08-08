@@ -182,6 +182,7 @@ github.com/sfomuseum/go-edtf/re
 github.com/sfomuseum/go-edtf/tests
 # github.com/sfomuseum/go-flags v0.8.2
 ## explicit
+github.com/sfomuseum/go-flags/flagset
 github.com/sfomuseum/go-flags/multi
 # github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.7
 github.com/sfomuseum/go-sfomuseum-export/v2

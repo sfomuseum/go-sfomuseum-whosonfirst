@@ -12,11 +12,12 @@ import (
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"github.com/mitchellh/go-wordwrap"
+	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
+	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
@@ -29,39 +30,49 @@ import (
 
 func main() {
 
-	wof_reader_uri := flag.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
+	fs := flagset.NewFlagSet("feature")
 
-	data_reader_uri := flag.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
-	properties_reader_uri := flag.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
+	wof_reader_uri := fs.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
 
-	data_writer_uri := flag.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
-	properties_writer_uri := flag.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+	data_reader_uri := fs.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
+	properties_reader_uri := fs.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
 
-	retries := flag.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
-	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
+	data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
+	properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
 
-	user_agent := flag.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
+	retries := fs.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
+	max_clients := fs.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
+
+	user_agent := fs.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri fs")
 
 	var str_properties multi.KeyValueString
-	flag.Var(&str_properties, "string-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.")
+	fs.Var(&str_properties, "string-property", "One or more {KEY}={VALUE} fss where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.")
 
 	var int_properties multi.KeyValueInt64
-	flag.Var(&int_properties, "int-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a int(64) value.")
+	fs.Var(&int_properties, "int-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a int(64) value.")
 
 	// var float_properties multi.KeyValueFloat64
 	// flag.Var(&float_properties, "float-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a float(64) value.")
 
-	flag.Usage = func() {
+	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Fetch one or more Who's on First records and, optionally, their ancestors.\n\n")
 		fmt.Fprintf(os.Stderr, "Usage:\n")
 		fmt.Fprintf(os.Stderr, "  %s [options] [path1 path2 ... pathN]\n\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "Options:\n")
-		flag.PrintDefaults()
+		fs.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nNotes:\n\n")
 		fmt.Fprintf(os.Stderr, wordwrap.WrapString("pathN may be any valid Who's On First ID or URI that can be parsed by the go-whosonfirst-uri package.\n\n", 80))
 	}
 
-	flag.Parse()
+	mode := fs.String("mode", "cli", "Valid options are: cli, lambda")
+
+	flagset.Parse(fs)
+
+	err := flagset.SetFlagsFromEnvVars(fs, "SFOMUSEUM")
+
+	if err != nil {
+		log.Fatalf("Failed to set flags from environment variables, %w", err)
+	}
 
 	ctx := context.Background()
 
@@ -125,18 +136,40 @@ func main() {
 		log.Fatalf("Failed to create new fetcher, %v", err)
 	}
 
-	uris := flag.Args()
-	ids := make([]int64, 0)
+	sfom_opts := &custom.SFOMuseumPropertiesOptions{
+		DataReader:       data_r,
+		DataWriter:       data_wr,
+		PropertiesReader: props_r,
+		PropertiesWriter: props_wr,
+	}
 
-	for _, raw := range uris {
+	custom_props := make(map[string]interface{})
 
-		id, _, err := uri.ParseURI(raw)
+	for _, p := range str_properties {
+		path := p.Key()
+		value := p.Value()
 
-		if err != nil {
-			log.Fatalf("Unable to parse URI '%s', %v", raw, err)
-		}
+		path = strings.Replace(path, "properties.", "", 1)
+		custom_props[path] = value
+	}
 
-		ids = append(ids, id)
+	for _, p := range int_properties {
+		path := p.Key()
+		value := p.Value()
+
+		path = strings.Replace(path, "properties.", "", 1)
+		custom_props[path] = value
+	}
+
+	has_custom := false
+
+	for range custom_props {
+		has_custom = true
+		break
+	}
+
+	if has_custom {
+		sfom_opts.CustomProperties = custom_props
 	}
 
 	belongs_to := []string{
@@ -144,59 +177,41 @@ func main() {
 		"country",
 	}
 
-	for _, id := range ids {
+	import_opts := &wof_import.ImportFeatureOptions{
+		Fetcher:           fetcher,
+		PropertiesOptions: sfom_opts,
+		BelongsTo:         belongs_to,
+	}
 
-		fetched_ids, err := fetcher.FetchIDs(ctx, []int64{id}, belongs_to...)
+	switch *mode {
+	case "cli":
+
+		uris := fs.Args()
+		count := len(uris)
+
+		feature_ids := make([]int64, count)
+
+		for idx, raw := range uris {
+
+			id, _, err := uri.ParseURI(raw)
+
+			if err != nil {
+				log.Fatalf("Unable to parse URI '%s', %v", raw, err)
+			}
+
+			feature_ids[idx] = id
+		}
+
+		err := wof_import.ImportFeatures(ctx, import_opts, feature_ids...)
 
 		if err != nil {
-			log.Fatalf("Failed to fetch IDs, %v", err)
+			log.Fatalf("Failed to import IDs, %v", err)
 		}
 
-		sfom_opts := &custom.SFOMuseumPropertiesOptions{
-			DataReader:       data_r,
-			DataWriter:       data_wr,
-			PropertiesReader: props_r,
-			PropertiesWriter: props_wr,
-		}
-
-		cli_props := false
-
-		for _, i := range ids {
-
-			if i == id {
-				cli_props = true
-				break
-			}
-		}
-
-		if cli_props {
-
-			custom_props := make(map[string]interface{})
-
-			for _, p := range str_properties {
-				path := p.Key()
-				value := p.Value()
-
-				path = strings.Replace(path, "properties.", "", 1)
-				custom_props[path] = value
-			}
-
-			for _, p := range int_properties {
-				path := p.Key()
-				value := p.Value()
-
-				path = strings.Replace(path, "properties.", "", 1)
-				custom_props[path] = value
-			}
-
-			sfom_opts.CustomProperties = custom_props
-		}
-
-		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, fetched_ids...)
-
-		if err != nil {
-			log.Fatalf("Failed to apply SFO Museum properties, %v", err)
-		}
+	case "lambda":
+		// pass
+	default:
+		log.Fatalf("Invalid or unsupported mode: %s", *mode)
 	}
 
 }
