@@ -8,16 +8,15 @@ package main
 import (
 	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
-	_ "github.com/whosonfirst/go-writer-github"
 	_ "gocloud.dev/runtimevar/awsparamstore"
 	_ "gocloud.dev/runtimevar/constantvar"
-	_ "gocloud.dev/runtimevar/filevar"	
+	_ "gocloud.dev/runtimevar/filevar"
 )
 
 import (
 	"context"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"	
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
@@ -27,6 +26,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer"
+	gh_writer "github.com/whosonfirst/go-writer-github"
 	"log"
 	"net/url"
 	"os"
@@ -44,6 +44,8 @@ func main() {
 
 	data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
 	properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+
+	token_uri := fs.String("access-token-uri", "", "")
 
 	retries := fs.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
 	max_clients := fs.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
@@ -112,6 +114,18 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("Failed to create new properties reader, %v", err)
+	}
+
+	*data_writer_uri, err = gh_writer.EnsureGitHubAccessToken(ctx, *data_writer_uri, *token_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to append token to data writer, %v", err)
+	}
+
+	*properties_writer_uri, err = gh_writer.EnsureGitHubAccessToken(ctx, *properties_writer_uri, *token_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to append token to properties writer, %v", err)
 	}
 
 	data_wr, err := writer.NewWriter(ctx, *data_writer_uri)
@@ -222,7 +236,7 @@ func main() {
 		handler := func(ctx context.Context, ev ImportEvent) error {
 
 			err := wof_import.ImportFeatures(ctx, import_opts, ev.Ids...)
-			
+
 			if err != nil {
 				return fmt.Errorf("Failed to import IDs, %v", err)
 			}
@@ -230,7 +244,7 @@ func main() {
 			return nil
 		}
 
-		lambda.Start(handler)		
+		lambda.Start(handler)
 
 	default:
 		log.Fatalf("Invalid or unsupported mode: %s", *mode)
