@@ -53,7 +53,7 @@ func applySFOMuseumProperties(ctx context.Context, opts *SFOMuseumPropertiesOpti
 	data_fh, err := opts.DataReader.Read(ctx, data_path)
 
 	if err != nil {
-		return fmt.Errorf("Failed read data for %d, %w", id, err)
+		return fmt.Errorf("Failed read data for %s, %w", data_path, err)
 	}
 
 	data_body, err := io.ReadAll(data_fh)
