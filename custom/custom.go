@@ -13,7 +13,7 @@ import (
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-export/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer"
+	"github.com/whosonfirst/go-writer/v2"
 	"io"
 	"path/filepath"
 )
@@ -90,6 +90,12 @@ func WriteCustomProperties(ctx context.Context, wr writer.Writer, id int64, prop
 		return fmt.Errorf("Failed to write custom properties for %d, %w", id, err)
 	}
 
+	err = wr.Flush(ctx)
+
+	if err != nil {
+		return fmt.Errorf("Failed to flush custom properties for %d, %w", id, err)
+	}
+	
 	return nil
 }
 
@@ -113,7 +119,7 @@ func CreateCustomProperties(ctx context.Context, wr writer.Writer, id int64) (ma
 	err := WriteCustomProperties(ctx, wr, id, props_map)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create custom properties for %d, %w", id, err)
+		return nil, fmt.Errorf("Failed to write new custom properties for %d, %w", id, err)
 	}
 
 	return props_map, nil
@@ -132,7 +138,7 @@ func MergeCustomProperties(ctx context.Context, props_r reader.Reader, data_r re
 	data_fh, err := data_r.Read(ctx, data_path)
 
 	if err != nil {
-		return fmt.Errorf("Failed read data for %d, %w", id, err)
+		return fmt.Errorf("Failed read data for %s, %w", data_path, err)
 	}
 
 	body, err := io.ReadAll(data_fh)

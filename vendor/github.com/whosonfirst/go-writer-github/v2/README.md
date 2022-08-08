@@ -95,7 +95,7 @@ The URI structure for `go-writer-github` (API Pull Request) writers is:
 
 | Component | Value | Notes |
 | --- | --- | --- |
-| Scheme | `githubapi` | |
+| Scheme | `githubapi-pr` | |
 | Host | string | A valid GitHub owner or organization |
 | Path | string | A valid GitHub respository |
 | Query | | _described below_ |
@@ -135,6 +135,44 @@ githubapi-pr://sfomuseum-data/sfomuseum-data-collection \
 Which might yield something like this:
 
 ![](docs/images/go-writer-github-api-pr.png)
+
+### githubapi-tree
+
+The `githubapi-tree` scheme is used to write multiple documents to a GitHub tree commit using the GitHub API. The pull request is created when the writer's `Close()` method is called.
+
+_Note: At this time all documents passed to the writer's `Write()` method are stored in memory so until a mechanism for buffering writes to disk (or equivalent) is implemented then you may need to monitor memory consumption if you are using this will a lot of documents._
+
+The URI structure for `go-writer-github` (API Pull Request) writers is:
+
+| Component | Value | Notes |
+| --- | --- | --- |
+| Scheme | `githubapi-tree` | |
+| Host | string | A valid GitHub owner or organization |
+| Path | string | A valid GitHub respository |
+| Query | | _described below_ |
+
+The following query parameters are supported for `go-writer-github` writers:
+
+| Name | Value | Required | Notes |
+| --- | --- | --- | --- |
+| access_token | string | yes | A valid GitHub API access token |
+| branch | string | no | A valid Git repository branch. Default is `main`. |
+| prefix | string | no | An optional path to prepend URIs (for writing) with. |
+| to-branch | string | yes | The name of branch that the pull request will be created for. |
+| description | string | yes | The description of the pull request being created. |
+| author | string | no | The author of the pull request being created. If empty the name associated with the GitHub access token will be used (must not be empty). |
+| email | string | no | The email address associated with the pull request being created. If empty the email address associated with the GitHub access token will be used (must not be empty). |
+
+For example:
+
+```
+githubapi-tree://sfomuseum-data/sfomuseum-data-collection \
+	?access_token={access_token} \
+	&branch=main \
+	&prefix=data/ \
+	&description=testing \
+	&email=aaron@localhost 
+```
 
 ## See also
 

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/go-github/github"
-	wof_writer "github.com/whosonfirst/go-writer"
+	wof_writer "github.com/whosonfirst/go-writer/v2"
 	"golang.org/x/oauth2"
 	"io"
-	_ "log"
+	"log"
 	"net/url"
 	"path/filepath"
 	"strconv"
@@ -288,6 +288,14 @@ func (wr *GitHubAPIWriter) WriterURI(ctx context.Context, key string) string {
 	return uri
 }
 
+func (wr *GitHubAPIWriter) Flush(ctx context.Context) error {
+	return nil
+}
+
 func (wr *GitHubAPIWriter) Close(ctx context.Context) error {
+	return nil
+}
+
+func (wr *GitHubAPIWriter) SetLogger(ctx context.Context, logger *log.Logger) error {
 	return nil
 }

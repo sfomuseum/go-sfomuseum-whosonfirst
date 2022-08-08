@@ -6,7 +6,7 @@ import (
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer"
+	"github.com/whosonfirst/go-writer/v2"
 	"io"
 	_ "strings"
 )

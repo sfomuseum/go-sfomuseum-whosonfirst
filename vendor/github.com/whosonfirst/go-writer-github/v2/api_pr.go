@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/go-github/github"
-	wof_writer "github.com/whosonfirst/go-writer"
+	wof_writer "github.com/whosonfirst/go-writer/v2"
 	"golang.org/x/oauth2"
 	"io"
 	"log"
@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,22 +27,23 @@ const GITHUBAPI_PR_SCHEME string = "githubapi-pr"
 
 type GitHubAPIPullRequestWriter struct {
 	wof_writer.Writer
-	base_owner         string
-	base_repo          string
-	base_branch        string
-	pr_owner           string
-	pr_repo            string
-	pr_branch          string
-	pr_author          string
-	pr_email           string
-	pr_title           string
-	pr_description     string
-	pr_entries         []github.TreeEntry
-	pr_ensure_repo     bool
-	prefix             string
-	client             *github.Client
-	user               *github.User
-	logger             *log.Logger
+	base_owner     string
+	base_repo      string
+	base_branch    string
+	pr_owner       string
+	pr_repo        string
+	pr_branch      string
+	pr_author      string
+	pr_email       string
+	pr_title       string
+	pr_description string
+	pr_entries     []github.TreeEntry
+	pr_ensure_repo bool
+	prefix         string
+	client         *github.Client
+	user           *github.User
+	logger         *log.Logger
+	mutex          *sync.RWMutex
 }
 
 func init() {
@@ -169,25 +171,27 @@ func NewGitHubAPIPullRequestWriter(ctx context.Context, uri string) (wof_writer.
 
 	pr_entries := []github.TreeEntry{}
 
+	mutex := new(sync.RWMutex)
 	logger := log.Default()
 
 	wr := &GitHubAPIPullRequestWriter{
-		client:             client,
-		user:               user,
-		base_owner:         base_owner,
-		base_repo:          base_repo,
-		base_branch:        base_branch,
-		pr_owner:           pr_owner,
-		pr_repo:            pr_repo,
-		pr_branch:          pr_branch,
-		pr_author:          pr_author,
-		pr_email:           pr_email,
-		pr_title:           pr_title,
-		pr_description:     pr_description,
-		pr_ensure_repo:     pr_ensure_repo,
-		pr_entries:         pr_entries,
-		prefix:             prefix,
-		logger:             logger,
+		client:         client,
+		user:           user,
+		base_owner:     base_owner,
+		base_repo:      base_repo,
+		base_branch:    base_branch,
+		pr_owner:       pr_owner,
+		pr_repo:        pr_repo,
+		pr_branch:      pr_branch,
+		pr_author:      pr_author,
+		pr_email:       pr_email,
+		pr_title:       pr_title,
+		pr_description: pr_description,
+		pr_ensure_repo: pr_ensure_repo,
+		pr_entries:     pr_entries,
+		prefix:         prefix,
+		logger:         logger,
+		mutex:          mutex,
 	}
 
 	return wr, nil
@@ -216,12 +220,18 @@ func (wr *GitHubAPIPullRequestWriter) Write(ctx context.Context, uri string, r i
 		Mode:    github.String("100644"),
 	}
 
+	wr.mutex.Lock()
+	defer wr.mutex.Unlock()
+
 	wr.pr_entries = append(wr.pr_entries, e)
 
 	return 0, nil
 }
 
-func (wr *GitHubAPIPullRequestWriter) Close(ctx context.Context) error {
+func (wr *GitHubAPIPullRequestWriter) Flush(ctx context.Context) error {
+
+	wr.mutex.Lock()
+	defer wr.mutex.Unlock()
 
 	if len(wr.pr_entries) == 0 {
 		return nil
@@ -263,6 +273,15 @@ func (wr *GitHubAPIPullRequestWriter) Close(ctx context.Context) error {
 		return fmt.Errorf("Failed to create PR, %w", err)
 	}
 
+	return nil
+}
+
+func (wr *GitHubAPIPullRequestWriter) Close(ctx context.Context) error {
+	return wr.Flush(ctx)
+}
+
+func (wr *GitHubAPIPullRequestWriter) SetLogger(ctx context.Context, logger *log.Logger) error {
+	wr.logger = logger
 	return nil
 }
 
@@ -390,7 +409,7 @@ func (wr *GitHubAPIPullRequestWriter) pushCommit(ctx context.Context, ref *githu
 		return fmt.Errorf("Failed to create commit, %w", err)
 	}
 
-	// Attach the commit to the master branch.
+	// Attach the commit to the main branch.
 	ref.Object.SHA = newCommit.SHA
 
 	_, _, err = wr.client.Git.UpdateRef(ctx, wr.pr_owner, wr.pr_repo, ref, false)

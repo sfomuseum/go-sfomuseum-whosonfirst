@@ -22,7 +22,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.1.0
 	github.com/whosonfirst/go-whosonfirst-reader v1.0.1
 	github.com/whosonfirst/go-whosonfirst-uri v1.2.0
-	github.com/whosonfirst/go-writer v1.0.1
-	github.com/whosonfirst/go-writer-github v0.7.0
+	github.com/whosonfirst/go-writer-github/v2 v2.0.0
+	github.com/whosonfirst/go-writer/v2 v2.0.0
 	gocloud.dev v0.26.0
 )

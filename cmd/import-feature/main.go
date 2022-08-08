@@ -25,8 +25,8 @@ import (
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer"
-	gh_writer "github.com/whosonfirst/go-writer-github"
+	"github.com/whosonfirst/go-writer/v2"
+	gh_writer "github.com/whosonfirst/go-writer-github/v2"
 	"log"
 	"net/url"
 	"os"
@@ -39,12 +39,15 @@ func main() {
 
 	wof_reader_uri := fs.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
 
-	data_reader_uri := fs.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
-	properties_reader_uri := fs.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
+	// data_reader_uri := fs.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
+	// properties_reader_uri := fs.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
 
 	// data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
 	// properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
 
+	data_reader_uri := fs.String("data-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&branch=test", "A valid whosonfirst/go-reader URI.")
+	properties_reader_uri := fs.String("properties-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&branch=test", "A valid whosonfirst/go-reader URI.")
+	
 	data_writer_uri := fs.String("data-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=test", "A valid whosonfirst/go-writer URI.")
 
 	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=test", "A valid whosonfirst/go-writer URI.")

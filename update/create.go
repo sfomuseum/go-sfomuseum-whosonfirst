@@ -8,7 +8,7 @@ import (
 	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v2"
 	"github.com/whosonfirst/go-reader"
 	wof_reader "github.com/whosonfirst/go-whosonfirst-reader"
-	"github.com/whosonfirst/go-writer"
+	"github.com/whosonfirst/go-writer/v2"
 	"strings"
 )
 
