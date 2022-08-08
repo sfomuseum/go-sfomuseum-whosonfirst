@@ -42,8 +42,12 @@ func main() {
 	data_reader_uri := fs.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
 	properties_reader_uri := fs.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
 
-	data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
-	properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+	// data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
+	// properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+
+	data_writer_uri := fs.String("data-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=test", "A valid whosonfirst/go-writer URI.")
+
+	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=test", "A valid whosonfirst/go-writer URI.")
 
 	token_uri := fs.String("access-token-uri", "", "")
 
@@ -202,6 +206,34 @@ func main() {
 		BelongsTo:         belongs_to,
 	}
 
+	// START OF local func to wrap
+	// making sure writers are Close()-ed
+
+	import_ids := func(ctx context.Context, ids ...int64) error {
+
+		err := wof_import.ImportFeatures(ctx, import_opts, ids...)
+
+		if err != nil {
+			return fmt.Errorf("Failed to import IDs, %v", err)
+		}
+
+		err = data_wr.Close(ctx)
+
+		if err != nil {
+			return fmt.Errorf("Failed to close data writer, %w", err)
+		}
+
+		err = props_wr.Close(ctx)
+
+		if err != nil {
+			return fmt.Errorf("Failed to close properties writer, %w", err)
+		}
+
+		return nil
+	}
+
+	// END OF local func to wrap
+
 	switch *mode {
 	case "cli":
 
@@ -221,7 +253,7 @@ func main() {
 			feature_ids[idx] = id
 		}
 
-		err := wof_import.ImportFeatures(ctx, import_opts, feature_ids...)
+		err := import_ids(ctx, feature_ids...)
 
 		if err != nil {
 			log.Fatalf("Failed to import IDs, %v", err)
@@ -235,7 +267,7 @@ func main() {
 
 		handler := func(ctx context.Context, ev ImportEvent) error {
 
-			err := wof_import.ImportFeatures(ctx, import_opts, ev.Ids...)
+			err := import_ids(ctx, ev.Ids...)
 
 			if err != nil {
 				return fmt.Errorf("Failed to import IDs, %v", err)
