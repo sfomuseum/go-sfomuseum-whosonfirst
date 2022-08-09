@@ -68,20 +68,44 @@ pathN may be any valid Who's On First ID or URI that can be parsed by the go-who
 ```
 #### AWS Lambda
 
+The `import-feature` tool can be compiled and invoked as a Lambda function.
+
+```
+$> make lambda-import
+if test -f main; then rm -f main; fi
+if test -f import-feature.zip; then rm -f import-feature.zip; fi
+GOOS=linux go build -mod vendor -o main cmd/import-feature/main.go
+zip import-feature.zip main
+  adding: main (deflated 58%)
+rm -f main
+```
+
 ##### Environment variables
+
+Once uploaded the Lambda function requires the following environment variables. The environment variables are used to assign their command-line flag equivalents. To determine the environment variable name for a command line flag apply the following rules:
+
+* Upper-case the name of the command line flag
+* Replace all instances of "-" with "_" in the command line flag
+* Append "SFOMUSEUM_" to the new string
+
+For example the `access-token-uri` flag becomes the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable.
 
 | Name | Value | Notes |
 | --- | --- | --- |
-| SFOMUSEUM_ACCESS_TOKEN_URI | awsparamstore://{KEY}?{REGION}&credentials=iam: | A valid `gocloud.dev/runtimevar` URI referencing a valid GitHub API access token. | 
-| SFOMUSEUM_DATA_READER_URI | githubapi://{GITHUB_ORG}/{GITHUB_REPO}?access_token={access_token}&prefix=data&branch={data_branch} | If the value of the `?branch=` paramter is "{data_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-data". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
-| SFOMUSEUM_DATA_WRITER_URI | githubapi-branch://{GITHUB_ORG}/{GITHUB_REPO}?prefix=data&access_token={access_token}&email={EMAIL}&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true | If the value of the `?branch=` paramter is "{data_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-data". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_ACCESS_TOKEN_URI | awsparamstore://(KEY)?(REGION)&credentials=iam: | A valid `gocloud.dev/runtimevar` URI referencing a valid GitHub API access token. | 
+| SFOMUSEUM_DATA_READER_URI | githubapi://(GITHUB_ORG)/(GITHUB_REPO)?access_token={access_token}&prefix=data&branch={data_branch} | If the value of the `?branch=` paramter is "{data_branch}" it will replaced by "(UNIX_TIMESTAMP)-(PROCESS_ID)-data". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_DATA_WRITER_URI | githubapi-branch://(GITHUB_ORG)/(GITHUB_REPO)?prefix=data&access_token={access_token}&email=(EMAIL)&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true | If the value of the `?branch=` paramter is "{data_branch}" it will replaced by "(UNIX_TIMESTAMP)-(PROCESS_ID)-data". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
 | SFOMUSEUM_ENABLE_FILTERING | true | |
-| SFOMUSEUM_FILTER_READER_URI | githubapi://{GITHUB_ORG}/{GITHUB_REPO}?access_token={access_token}&prefix=data | If empty the value of the `SFOMUSEUM_DATA_READER_URI` environment variable will be used. If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_FILTER_READER_URI | githubapi://(GITHUB_ORG)/(GITHUB_REPO)?access_token={access_token}&prefix=data | If empty the value of the `SFOMUSEUM_DATA_READER_URI` environment variable will be used. If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
 | SFOMUSEUM_MODE | lambda | |
-| SFOMUSEUM_PROPERTIES_READER_URI | githubapi://{GITHUB_ORG}/{GITHUB_REPO}?access_token={access_token}&prefix=properties&branch={props_branch} | If the value of the `?branch=` paramter is "{props_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-props". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
-| SFOMUSEUM_PROPERTIES_WRITER_URI | githubapi-branch://{GITHUB_ORG}/{GITHUB_REPO}?prefix=properties&access_token={access_token}&email={EMAIL}&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true | If the value of the `?branch=` paramter is "{props_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-props". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_PROPERTIES_READER_URI | githubapi://(GITHUB_ORG)/(GITHUB_REPO)?access_token={access_token}&prefix=properties&branch={props_branch} | If the value of the `?branch=` paramter is "{props_branch}" it will replaced by "(UNIX_TIMESTAMP)-(PROCESS_ID)-props". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_PROPERTIES_WRITER_URI | githubapi-branch://(GITHUB_ORG)/(GITHUB_REPO)?prefix=properties&access_token={access_token}&email=(EMAIL)&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true | If the value of the `?branch=` paramter is "{props_branch}" it will replaced by "(UNIX_TIMESTAMP)-(PROCESS_ID)-props". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+
+SFO Museum uses the `githubapi-branch://` writer in order to publish multiple updates to a branch and then merge those updates in the main branch in order to limit the number of webhooks triggered by commits to the main branch. This example reflect's SFO Museum's usage. Any implementation of the [whosonfirst/go-writer/v2.Writer](https://github.com/whosonfirst/go-writer) interface exported by the [whosonfirst/go-writer](https://github.com/whosonfirst/go-writer) and [whosonfirst/go-writer-github](https://github.com/whosonfirst/go-writer-github) can be used.
 
 ##### Import Events
+
+The `import-feature` tool, when invoked as a Lambda function, expects to read the IDs to import from a JSON-encoded `ImportEvent` data structure.
 
 ```
 type ImportEvent struct {
