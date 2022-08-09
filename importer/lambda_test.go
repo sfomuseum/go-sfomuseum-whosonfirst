@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+// go test -v -run TestLambdaImporter -importer-uri 'lambda://ImportWhosOnFirstFeature?region={REGION}&credentials={CREDENTIALS}&type=Event' -id 1310327797
+
 var importer_uri = flag.String("importer-uri", "", "")
 var id = flag.Int64("id", 0, "")
 
