@@ -6,7 +6,7 @@ import (
 	"github.com/whosonfirst/go-ioutil"
 	wof_reader "github.com/whosonfirst/go-reader"
 	"io"
-	_ "log"
+	"log"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -83,6 +83,7 @@ func (r *GitHubReader) Read(ctx context.Context, uri string) (io.ReadSeekCloser,
 
 	url := r.ReaderURI(ctx, uri)
 
+	log.Println("GET", url)
 	rsp, err := http.Get(url)
 
 	if err != nil {

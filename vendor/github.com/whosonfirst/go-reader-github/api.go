@@ -2,13 +2,14 @@ package reader
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/whosonfirst/go-ioutil"
 	wof_reader "github.com/whosonfirst/go-reader"
 	"golang.org/x/oauth2"
 	"io"
 	_ "log"
+	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -56,7 +57,7 @@ func NewGitHubAPIReader(ctx context.Context, uri string) (wof_reader.Reader, err
 	parts := strings.Split(path, "/")
 
 	if len(parts) != 1 {
-		return nil, errors.New("Invalid path")
+		return nil, fmt.Errorf("Invalid path")
 	}
 
 	r.repo = parts[0]
@@ -68,7 +69,7 @@ func NewGitHubAPIReader(ctx context.Context, uri string) (wof_reader.Reader, err
 	branch := q.Get("branch")
 
 	if token == "" {
-		return nil, errors.New("Missing access token")
+		return nil, fmt.Errorf("Missing access token")
 	}
 
 	if branch != "" {
@@ -96,25 +97,52 @@ func (r *GitHubAPIReader) Read(ctx context.Context, uri string) (io.ReadSeekClos
 
 	url := r.ReaderURI(ctx, uri)
 
-	opts := &github.RepositoryContentGetOptions{}
+	ref := fmt.Sprintf("refs/heads/%s", r.branch)
+
+	opts := &github.RepositoryContentGetOptions{
+		Ref: ref,
+	}
 
 	rsp, _, _, err := r.client.Repositories.GetContents(ctx, r.owner, r.repo, url, opts)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to get contents for %s, %w", url, err)
 	}
 
 	body, err := rsp.GetContent()
 
+	var rsp_r io.Reader
+
 	if err != nil {
-		return nil, err
+
+		// START OF I have no idea why I need to do this, but only sometimes...
+
+		if *rsp.Content != "" {
+			return nil, fmt.Errorf("Failed to read contents for %s, %w", url, err)
+		}
+
+		if *rsp.DownloadURL == "" {
+			return nil, fmt.Errorf("Failed to read contents for %s and response is missing download URL, %w", url, err)
+		}
+
+		raw_rsp, err := http.Get(*rsp.DownloadURL)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to fetch contents from download URL, %w", err)
+		}
+
+		rsp_r = raw_rsp.Body
+
+		// END OF I have no idea why I need to do this, but only sometimes...
+
+	} else {
+		rsp_r = strings.NewReader(body)
 	}
 
-	sr := strings.NewReader(body)
-	fh, err := ioutil.NewReadSeekCloser(sr)
+	fh, err := ioutil.NewReadSeekCloser(rsp_r)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create ReadSeekCloser for %s, %w", url, err)
 	}
 
 	return fh, nil

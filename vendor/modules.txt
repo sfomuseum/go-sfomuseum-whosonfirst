@@ -225,7 +225,7 @@ github.com/whosonfirst/go-ioutil
 # github.com/whosonfirst/go-reader v1.0.1
 ## explicit
 github.com/whosonfirst/go-reader
-# github.com/whosonfirst/go-reader-github v0.5.0
+# github.com/whosonfirst/go-reader-github v0.6.1
 ## explicit
 github.com/whosonfirst/go-reader-github
 # github.com/whosonfirst/go-reader-http v0.3.0

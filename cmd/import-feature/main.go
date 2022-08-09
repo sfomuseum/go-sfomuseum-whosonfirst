@@ -22,9 +22,9 @@ import (
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/whosonfirst/go-reader"
+	gh_reader "github.com/whosonfirst/go-reader-github"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	gh_reader "github.com/whosonfirst/go-reader-github"	
 	gh_writer "github.com/whosonfirst/go-writer-github/v2"
 	"github.com/whosonfirst/go-writer/v2"
 	"log"
@@ -139,7 +139,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to append token to data reader URI, %v", err)
 	}
-	
+
 	data_r, err := reader.NewReader(ctx, *data_reader_uri)
 
 	if err != nil {
