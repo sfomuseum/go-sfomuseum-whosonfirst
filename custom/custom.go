@@ -45,7 +45,7 @@ func ReadCustomProperties(ctx context.Context, r reader.Reader, id int64) (map[s
 	props_fh, err := r.Read(ctx, props_path)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read custom properties for %d, %w", id, err)
+		return nil, fmt.Errorf("Failed to read custom properties for %s, %w", props_path, err)
 	}
 
 	var props_map map[string]interface{}

@@ -639,8 +639,8 @@ github.com/whosonfirst/go-whosonfirst-writer/v2 v2.0.2/go.mod h1:LlGsWuBd4W/fTyG
 github.com/whosonfirst/go-writer v0.8.0/go.mod h1:Qj0rZgdoFagSJ1xwhm60KyTgMU4DK5C6q5n8zKpgnj8=
 github.com/whosonfirst/go-writer v1.0.1 h1:Ew9tkA/rTgF8w7yNc9CrdioVBLltDwWfMM0kDSA6jvc=
 github.com/whosonfirst/go-writer v1.0.1/go.mod h1:pVM562YU8Mu2IHqgT+Rk4o4ITAHM6d5dxeJL5G/r3UU=
-github.com/whosonfirst/go-writer-github/v2 v2.0.0 h1:4Etxuh7orx9VoOYCsgJNctcKmQIAgRGNg1VDzdhqxr0=
-github.com/whosonfirst/go-writer-github/v2 v2.0.0/go.mod h1:HOfGxxu3wlKKfQf2DZ3ckNIbb6jq1Zad0Oq+s8sgKnE=
+github.com/whosonfirst/go-writer-github/v2 v2.1.0 h1:AvvroMBJ3pSIuxJhpwwTiSn7he83e+dboXE0dhNO5kg=
+github.com/whosonfirst/go-writer-github/v2 v2.1.0/go.mod h1:HOfGxxu3wlKKfQf2DZ3ckNIbb6jq1Zad0Oq+s8sgKnE=
 github.com/whosonfirst/go-writer/v2 v2.0.0 h1:BQL9qR3z5yHGuRtbkqf/MYkaqu/p6r5txRTZ/h1w5xA=
 github.com/whosonfirst/go-writer/v2 v2.0.0/go.mod h1:/fiSSOP4uSOTCQOHzin9Ey/G9s55U4iRLdK9MHr2MMo=
 github.com/whosonfirst/iso8601duration v0.0.0-20150204201828-8da3af7a2a61/go.mod h1:mT7JgXlZYn9Ct77XmFiCDqdp0vEgWvRjC9mnY0lT6Lo=

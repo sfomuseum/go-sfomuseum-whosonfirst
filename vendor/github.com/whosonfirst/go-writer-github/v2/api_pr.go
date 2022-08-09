@@ -267,6 +267,17 @@ func (wr *GitHubAPIPullRequestWriter) Flush(ctx context.Context) error {
 		return fmt.Errorf("Failed to push commit, %w", err)
 	}
 
+	return nil
+}
+
+func (wr *GitHubAPIPullRequestWriter) Close(ctx context.Context) error {
+	
+	err := wr.Flush(ctx)
+
+	if err != nil {
+		return fmt.Errorf("Failed to flush records, %w", err)
+	}
+
 	err = wr.createPR(ctx)
 
 	if err != nil {
@@ -274,10 +285,6 @@ func (wr *GitHubAPIPullRequestWriter) Flush(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (wr *GitHubAPIPullRequestWriter) Close(ctx context.Context) error {
-	return wr.Flush(ctx)
 }
 
 func (wr *GitHubAPIPullRequestWriter) SetLogger(ctx context.Context, logger *log.Logger) error {

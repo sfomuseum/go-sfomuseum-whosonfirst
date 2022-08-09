@@ -35,7 +35,7 @@ func ApplySFOMuseumProperties(ctx context.Context, opts *SFOMuseumPropertiesOpti
 		err := applySFOMuseumProperties(ctx, opts, id)
 
 		if err != nil {
-			return fmt.Errorf("Failed to merge properties for %d, %w", id, err)
+			return fmt.Errorf("Failed to apply sfomuseum properties for %d, %w", id, err)
 		}
 	}
 
@@ -59,19 +59,19 @@ func applySFOMuseumProperties(ctx context.Context, opts *SFOMuseumPropertiesOpti
 	data_body, err := io.ReadAll(data_fh)
 
 	if err != nil {
-		return fmt.Errorf("Failed to read feature body, %v", err)
+		return fmt.Errorf("Failed to read feature body, %w", err)
 	}
 
 	data_pt, err := properties.Placetype(data_body)
 
 	if err != nil {
-		return fmt.Errorf("Failed to derive placetype for %d, %v", id, err)
+		return fmt.Errorf("Failed to derive placetype for %d, %w", id, err)
 	}
 
 	props, err := EnsureCustomProperties(ctx, opts.PropertiesReader, opts.PropertiesWriter, id)
 
 	if err != nil {
-		return fmt.Errorf("Failed to read custom properties for %d, %v", id, err)
+		return fmt.Errorf("Failed to read custom properties for %d, %w", id, err)
 	}
 
 	props["wof:repo"] = "sfomuseum-data-whosonfirst"
@@ -98,13 +98,13 @@ func applySFOMuseumProperties(ctx context.Context, opts *SFOMuseumPropertiesOpti
 	err = WriteCustomProperties(ctx, opts.PropertiesWriter, id, props)
 
 	if err != nil {
-		return fmt.Errorf("Failed to write custom properties for %d, %v", id, err)
+		return fmt.Errorf("Failed to write custom properties for %d, %w", id, err)
 	}
 
 	err = MergeCustomProperties(ctx, opts.PropertiesReader, opts.DataReader, opts.DataWriter, id)
 
 	if err != nil {
-		return fmt.Errorf("Failed to merge custom properties for %d, %v", id, err)
+		return fmt.Errorf("Failed to merge custom properties for %d, %w", id, err)
 	}
 
 	return nil

@@ -11,14 +11,15 @@ import (
 	"log"
 	"net/url"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
-const GITHUBAPI_TREE_SCHEME string = "githubapi-tree"
+const GITHUBAPI_BRANCH_SCHEME string = "githubapi-branch"
 
-type GitHubAPITreeWriter struct {
+type GitHubAPIBranchWriter struct {
 	wof_writer.Writer
 	base_owner         string
 	base_repo          string
@@ -30,7 +31,8 @@ type GitHubAPITreeWriter struct {
 	commit_email       string
 	commit_description string
 	commit_entries     []github.TreeEntry
-	commit_ensure_repo bool
+	merge_branch bool
+	remove_branch      bool
 	prefix             string
 	client             *github.Client
 	user               *github.User
@@ -39,12 +41,11 @@ type GitHubAPITreeWriter struct {
 }
 
 func init() {
-
 	ctx := context.Background()
-	wof_writer.RegisterWriter(ctx, GITHUBAPI_TREE_SCHEME, NewGitHubAPITreeWriter)
+	wof_writer.RegisterWriter(ctx, GITHUBAPI_BRANCH_SCHEME, NewGitHubAPIBranchWriter)
 }
 
-func NewGitHubAPITreeWriter(ctx context.Context, uri string) (wof_writer.Writer, error) {
+func NewGitHubAPIBranchWriter(ctx context.Context, uri string) (wof_writer.Writer, error) {
 
 	u, err := url.Parse(uri)
 
@@ -95,13 +96,18 @@ func NewGitHubAPITreeWriter(ctx context.Context, uri string) (wof_writer.Writer,
 
 	commit_owner := base_owner
 	commit_repo := base_repo
-	commit_branch := base_branch
 
 	to_branch := q.Get("to-branch")
 
-	if to_branch != "" {
-		commit_branch = to_branch
+	if to_branch == "" {
+		return nil, fmt.Errorf("Invalid to-branch")
 	}
+
+	if to_branch == base_branch {
+		return nil, fmt.Errorf("Commit branch can not be the same as base branch")
+	}
+	
+	commit_branch := to_branch
 
 	commit_description := q.Get("description")
 
@@ -127,11 +133,39 @@ func NewGitHubAPITreeWriter(ctx context.Context, uri string) (wof_writer.Writer,
 
 	commit_entries := []github.TreeEntry{}
 
-	logger := log.Default()
+	merge_branch := false
+	remove_branch := false
+
+	str_merge := q.Get("merge")
+	str_remove := q.Get("remove-on-merge")
+	
+	if str_merge != "" {
+
+		merge, err := strconv.ParseBool(str_merge)
+
+		if err != nil {
+			return nil, fmt.Errorf("Invalid merge parameter, %w", err)
+		}
+
+		merge_branch = merge
+	}
+
+	if str_remove != "" {
+
+		remove, err := strconv.ParseBool(str_remove)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse '%s', %v", str_remove, err)
+		}
+
+		remove_branch = remove
+	}
+
+	logger := log.New(io.Discard, "", 0)
 
 	mutex := new(sync.RWMutex)
 
-	wr := &GitHubAPITreeWriter{
+	wr := &GitHubAPIBranchWriter{
 		client:             client,
 		user:               user,
 		base_owner:         base_owner,
@@ -147,18 +181,14 @@ func NewGitHubAPITreeWriter(ctx context.Context, uri string) (wof_writer.Writer,
 		prefix:             prefix,
 		logger:             logger,
 		mutex:              mutex,
+		merge_branch: merge_branch,
+		remove_branch:      remove_branch,
 	}
 
 	return wr, nil
 }
 
-func (wr *GitHubAPITreeWriter) Write(ctx context.Context, uri string, r io.ReadSeeker) (int64, error) {
-
-	// Something something something account for cases with a bazillion commits and not keeping
-	// everything in memory until we call Close(). One option would be to keep a local map of io.ReadSeeker
-	// instances but then we will just have filehandle exhaustion problems. Add option to write to
-	// disk or something like a SQLite database (allowing a custom DSN to determine whether to write to
-	// disk or memory) ?
+func (wr *GitHubAPIBranchWriter) Write(ctx context.Context, uri string, r io.ReadSeeker) (int64, error) {
 
 	body, err := io.ReadAll(r)
 
@@ -180,11 +210,11 @@ func (wr *GitHubAPITreeWriter) Write(ctx context.Context, uri string, r io.ReadS
 
 	wr.commit_entries = append(wr.commit_entries, e)
 
-	wr.logger.Printf("Add %s\n", wr_uri)
+	wr.logger.Printf("Add %s/%s @%s\n", wr.base_repo, wr_uri, wr.commit_branch)
 	return 0, nil
 }
 
-func (wr *GitHubAPITreeWriter) Flush(ctx context.Context) error {
+func (wr *GitHubAPIBranchWriter) Flush(ctx context.Context) error {
 
 	wr.mutex.Lock()
 	defer wr.mutex.Unlock()
@@ -205,7 +235,7 @@ func (wr *GitHubAPITreeWriter) Flush(ctx context.Context) error {
 	tree, _, err := wr.client.Git.CreateTree(ctx, wr.commit_owner, wr.commit_repo, *ref.Object.SHA, wr.commit_entries)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create tree, %w", err)
+		return fmt.Errorf("Failed to create branch, %w", err)
 	}
 
 	err = wr.pushCommit(ctx, ref, tree)
@@ -218,16 +248,43 @@ func (wr *GitHubAPITreeWriter) Flush(ctx context.Context) error {
 	return nil
 }
 
-func (wr *GitHubAPITreeWriter) Close(ctx context.Context) error {
-	return wr.Flush(ctx)
+func (wr *GitHubAPIBranchWriter) Close(ctx context.Context) error {
+
+	err := wr.Flush(ctx)
+
+	if err != nil {
+		return fmt.Errorf("Failed to flush writer, %w", err)
+	}
+
+	if !wr.merge_branch {
+		return nil
+	}
+	
+	err = wr.mergeBranch(ctx)
+
+	if err != nil {
+		return fmt.Errorf("Failed to merge branch, %w", err)
+	}
+
+	if !wr.remove_branch {
+		return nil
+	}
+	
+	err = wr.removeBranch(ctx)
+	
+	if err != nil {
+		return fmt.Errorf("Failed to remove branch, %w", err)
+	}
+
+	return nil
 }
 
-func (wr *GitHubAPITreeWriter) SetLogger(ctx context.Context, logger *log.Logger) error {
+func (wr *GitHubAPIBranchWriter) SetLogger(ctx context.Context, logger *log.Logger) error {
 	wr.logger = logger
 	return nil
 }
 
-func (wr *GitHubAPITreeWriter) WriterURI(ctx context.Context, key string) string {
+func (wr *GitHubAPIBranchWriter) WriterURI(ctx context.Context, key string) string {
 
 	uri := key
 
@@ -238,7 +295,7 @@ func (wr *GitHubAPITreeWriter) WriterURI(ctx context.Context, key string) string
 	return uri
 }
 
-func (wr *GitHubAPITreeWriter) getRef(ctx context.Context) (*github.Reference, error) {
+func (wr *GitHubAPIBranchWriter) getRef(ctx context.Context) (*github.Reference, error) {
 
 	base_branch := fmt.Sprintf("refs/heads/%s", wr.base_branch)
 	commit_branch := fmt.Sprintf("refs/heads/%s", wr.commit_branch)
@@ -255,7 +312,12 @@ func (wr *GitHubAPITreeWriter) getRef(ctx context.Context) (*github.Reference, e
 		return nil, fmt.Errorf("Failed to retrieve base branch '%s' for %s/%s, %w", base_branch, wr.commit_owner, wr.commit_repo, err)
 	}
 
-	new_ref := &github.Reference{Ref: github.String(commit_branch), Object: &github.GitObject{SHA: base_ref.Object.SHA}}
+	new_ref := &github.Reference{
+		Ref: github.String(commit_branch),
+		Object: &github.GitObject{
+			SHA: base_ref.Object.SHA,
+		},
+	}
 
 	commit_ref, _, err = wr.client.Git.CreateRef(ctx, wr.commit_owner, wr.commit_repo, new_ref)
 
@@ -266,8 +328,8 @@ func (wr *GitHubAPITreeWriter) getRef(ctx context.Context) (*github.Reference, e
 	return commit_ref, err
 }
 
-// pushCommit creates the commit in the given reference using the given tree.
-func (wr *GitHubAPITreeWriter) pushCommit(ctx context.Context, ref *github.Reference, tree *github.Tree) error {
+// pushCommit creates the commit in the given reference using the given branch.
+func (wr *GitHubAPIBranchWriter) pushCommit(ctx context.Context, ref *github.Reference, tree *github.Tree) error {
 
 	// Get the parent commit to attach the commit to.
 
@@ -280,7 +342,7 @@ func (wr *GitHubAPITreeWriter) pushCommit(ctx context.Context, ref *github.Refer
 	// This is not always populated, but is needed.
 	parent.Commit.SHA = parent.SHA
 
-	// Create the commit using the tree.
+	// Create the commit using the branch.
 	date := time.Now()
 
 	author := &github.CommitAuthor{
@@ -313,6 +375,42 @@ func (wr *GitHubAPITreeWriter) pushCommit(ctx context.Context, ref *github.Refer
 
 	if err != nil {
 		return fmt.Errorf("Failed to update ref, %w", err)
+	}
+
+	return nil
+}
+
+func (wr *GitHubAPIBranchWriter) mergeBranch(ctx context.Context) error {
+
+	commit_msg := fmt.Sprintf("Merge %s", wr.commit_branch)
+
+	wr.logger.Println(commit_msg)
+
+	req := &github.RepositoryMergeRequest{
+		Base:          &wr.base_branch,
+		Head:          &wr.commit_branch,
+		CommitMessage: &commit_msg,
+	}
+
+	_, _, err := wr.client.Repositories.Merge(ctx, wr.base_owner, wr.base_repo, req)
+
+	if err != nil {
+		return fmt.Errorf("Failed to merge branch, %w", err)
+	}
+
+	return nil
+}
+
+func (wr *GitHubAPIBranchWriter) removeBranch(ctx context.Context) error {
+
+	ref := fmt.Sprintf("heads/%s", wr.commit_branch)
+	
+	wr.logger.Printf("Remove %s\n", ref)
+
+	_, err := wr.client.Git.DeleteRef(ctx, wr.base_owner, wr.base_repo, ref)
+
+	if err != nil {
+		return fmt.Errorf("Failed to remove branch, %w", err)
 	}
 
 	return nil

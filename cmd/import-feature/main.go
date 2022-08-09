@@ -45,13 +45,18 @@ func main() {
 	// data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
 	// properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
 
-	data_reader_uri := fs.String("data-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&branch=test", "A valid whosonfirst/go-reader URI.")
-	properties_reader_uri := fs.String("properties-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&branch=test", "A valid whosonfirst/go-reader URI.")
+	data_reader_uri := fs.String("data-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&branch=data", "A valid whosonfirst/go-reader URI.")
 	
-	data_writer_uri := fs.String("data-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=test", "A valid whosonfirst/go-writer URI.")
+	properties_reader_uri := fs.String("properties-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&branch=props", "A valid whosonfirst/go-reader URI.")
+	
+	// data_writer_uri := fs.String("data-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=test", "A valid whosonfirst/go-writer URI.")
 
-	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=test", "A valid whosonfirst/go-writer URI.")
+	// properties_writer_uri := fs.String("properties-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=test", "A valid whosonfirst/go-writer URI.")
 
+	data_writer_uri := fs.String("data-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=data&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+
+	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=props&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+	
 	token_uri := fs.String("access-token-uri", "", "")
 
 	retries := fs.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
@@ -82,6 +87,8 @@ func main() {
 
 	flagset.Parse(fs)
 
+	logger := log.Default()
+	
 	err := flagset.SetFlagsFromEnvVars(fs, "SFOMUSEUM")
 
 	if err != nil {
@@ -147,6 +154,9 @@ func main() {
 		log.Fatalf("Failed to create new properties writer, %v", err)
 	}
 
+	data_wr.SetLogger(ctx, logger)	
+	props_wr.SetLogger(ctx, logger)
+	
 	fetcher_opts, err := fetch.DefaultOptions()
 
 	if err != nil {

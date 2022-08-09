@@ -275,7 +275,7 @@ github.com/whosonfirst/go-whosonfirst-uri
 github.com/whosonfirst/go-whosonfirst-writer/v2
 # github.com/whosonfirst/go-writer v1.0.1
 github.com/whosonfirst/go-writer
-# github.com/whosonfirst/go-writer-github/v2 v2.0.0
+# github.com/whosonfirst/go-writer-github/v2 v2.1.0
 ## explicit
 github.com/whosonfirst/go-writer-github/v2
 # github.com/whosonfirst/go-writer/v2 v2.0.0
