@@ -90,12 +90,16 @@ func WriteCustomProperties(ctx context.Context, wr writer.Writer, id int64, prop
 		return fmt.Errorf("Failed to write custom properties for %d, %w", id, err)
 	}
 
+	// See this? It's important if we're reading/writing to a GitHub repo; specifically we
+	// need to make sure we push (flush) the record above in order to be able to read it
+	// when `ReadCustomProperties` is called.
+
 	err = wr.Flush(ctx)
 
 	if err != nil {
 		return fmt.Errorf("Failed to flush custom properties for %d, %w", id, err)
 	}
-	
+
 	return nil
 }
 

@@ -6,7 +6,6 @@
 package main
 
 import (
-	_ "github.com/whosonfirst/go-reader-github"
 	_ "github.com/whosonfirst/go-reader-http"
 	_ "gocloud.dev/runtimevar/awsparamstore"
 	_ "gocloud.dev/runtimevar/constantvar"
@@ -25,12 +24,14 @@ import (
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer/v2"
+	gh_reader "github.com/whosonfirst/go-reader-github"	
 	gh_writer "github.com/whosonfirst/go-writer-github/v2"
+	"github.com/whosonfirst/go-writer/v2"
 	"log"
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -45,18 +46,18 @@ func main() {
 	// data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
 	// properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
 
-	data_reader_uri := fs.String("data-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&branch=data", "A valid whosonfirst/go-reader URI.")
-	
-	properties_reader_uri := fs.String("properties-reader-uri", "github://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&branch=props", "A valid whosonfirst/go-reader URI.")
-	
+	data_reader_uri := fs.String("data-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data&branch={data_branch}", "A valid whosonfirst/go-reader URI.")
+
+	properties_reader_uri := fs.String("properties-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=properties&branch={props_branch}", "A valid whosonfirst/go-reader URI.")
+
 	// data_writer_uri := fs.String("data-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=test", "A valid whosonfirst/go-writer URI.")
 
 	// properties_writer_uri := fs.String("properties-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=test", "A valid whosonfirst/go-writer URI.")
 
-	data_writer_uri := fs.String("data-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=data&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+	data_writer_uri := fs.String("data-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
 
-	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=props&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
-	
+	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+
 	token_uri := fs.String("access-token-uri", "", "")
 
 	retries := fs.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
@@ -88,7 +89,7 @@ func main() {
 	flagset.Parse(fs)
 
 	logger := log.Default()
-	
+
 	err := flagset.SetFlagsFromEnvVars(fs, "SFOMUSEUM")
 
 	if err != nil {
@@ -96,6 +97,21 @@ func main() {
 	}
 
 	ctx := context.Background()
+
+	now := time.Now()
+	ts := now.Unix()
+	pid := os.Getpid()
+
+	branch_uid := fmt.Sprintf("%d-%d", ts, pid)
+
+	data_branch := fmt.Sprintf("%s-data", branch_uid)
+	props_branch := fmt.Sprintf("%s-props", branch_uid)
+
+	*data_reader_uri = strings.Replace(*data_reader_uri, "{data_branch}", data_branch, 1)
+	*data_writer_uri = strings.Replace(*data_writer_uri, "{data_branch}", data_branch, 1)
+
+	*properties_reader_uri = strings.Replace(*properties_reader_uri, "{props_branch}", props_branch, 1)
+	*properties_writer_uri = strings.Replace(*properties_writer_uri, "{props_branch}", props_branch, 1)
 
 	if *user_agent != "" {
 
@@ -118,10 +134,22 @@ func main() {
 		log.Fatalf("Failed to create new WOF reader for '%s', %v", *wof_reader_uri, err)
 	}
 
+	*data_reader_uri, err = gh_reader.EnsureGitHubAccessToken(ctx, *data_reader_uri, *token_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to append token to data reader URI, %v", err)
+	}
+	
 	data_r, err := reader.NewReader(ctx, *data_reader_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create new data reader, %v", err)
+	}
+
+	*properties_reader_uri, err = gh_reader.EnsureGitHubAccessToken(ctx, *properties_reader_uri, *token_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to append token to properties reader URI, %v", err)
 	}
 
 	props_r, err := reader.NewReader(ctx, *properties_reader_uri)
@@ -154,9 +182,9 @@ func main() {
 		log.Fatalf("Failed to create new properties writer, %v", err)
 	}
 
-	data_wr.SetLogger(ctx, logger)	
+	data_wr.SetLogger(ctx, logger)
 	props_wr.SetLogger(ctx, logger)
-	
+
 	fetcher_opts, err := fetch.DefaultOptions()
 
 	if err != nil {
@@ -223,6 +251,8 @@ func main() {
 	// making sure writers are Close()-ed
 
 	import_ids := func(ctx context.Context, ids ...int64) error {
+
+		// filter ids here...
 
 		err := wof_import.ImportFeatures(ctx, import_opts, ids...)
 

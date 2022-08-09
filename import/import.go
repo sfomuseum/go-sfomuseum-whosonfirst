@@ -24,7 +24,7 @@ func ImportFeatures(ctx context.Context, opts *ImportFeatureOptions, ids ...int6
 		}
 
 		// Flush data so that it can be found below
-		
+
 		err = opts.PropertiesOptions.DataWriter.Flush(ctx)
 
 		if err != nil {
