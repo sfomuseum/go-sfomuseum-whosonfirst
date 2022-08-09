@@ -34,21 +34,29 @@ Usage:
 ### import-feature
 
 ```
-$> ./bin/import-feature -h
+> ./bin/import-feature -h
 Fetch one or more Who's on First records and, optionally, their ancestors.
 
 Usage:
   ./bin/import-feature [options] [path1 path2 ... pathN]
 
 Options:
+  -access-token-uri string
+    	A valid GitHub API access token. This will be used to replace the "{access_token}" string template in any of the "*-reader-uri" or "*-writer-uri" flag values.
   -data-reader-uri string
     	A valid whosonfirst/go-reader URI. (default "fs:///usr/local/data/sfomuseum-data-whosonfirst/data")
   -data-writer-uri string
     	A valid whosonfirst/go-writer URI. (default "fs:///usr/local/data/sfomuseum-data-whosonfirst/data")
+  -enable-filtering
+    	If true only source IDs with a lastmodified date greater than their target counterparts will be imported. (default true)
+  -filter-reader-uri string
+    	A valid whosonfirst/go-reader URI. If empty the value of the -data-reader-uri flag will be used.
   -int-property value
     	One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a int(64) value.
   -max-clients int
     	The maximum number of concurrent requests for multiple Who's On First records. (default 10)
+  -mode string
+    	Valid options are: cli, lambda (default "cli")
   -properties-reader-uri string
     	A valid whosonfirst/go-reader URI. (default "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties")
   -properties-writer-uri string
@@ -56,15 +64,16 @@ Options:
   -retries int
     	The maximum number of attempts to try fetching a record. (default 3)
   -string-property value
-    	One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.
+    	One or more {KEY}={VALUE} fss where {KEY} is a valid tidwall/gjson path and {VALUE} is a string value.
   -user-agent string
-    	An optional user-agent to append to the -whosonfirst-reader-uri flag (default "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0")
+    	An optional user-agent to append to the -whosonfirst-reader-uri fs (default "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0")
   -whosonfirst-reader-uri string
     	A valid whosonfirst/go-reader URI. (default "https://data.whosonfirst.org/")
 
 Notes:
 
-pathN may be any valid Who's On First ID or URI that can be parsed by the go-whosonfirst-uri package.
+pathN may be any valid Who's On First ID or URI that can be parsed by the
+go-whosonfirst-uri package.
 ```
 #### AWS Lambda
 
