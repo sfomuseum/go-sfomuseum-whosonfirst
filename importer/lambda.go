@@ -14,6 +14,10 @@ type LambdaImporter struct {
 	lambda_func *lambda.LambdaFunction
 }
 
+type ImportEvent struct {
+	Ids []int64 `json:"ids"`
+}
+
 func init() {
 	ctx := context.Background()
 	RegisterImporter(ctx, LAMBDA_SCHEME, NewLambdaImporter)
@@ -34,7 +38,7 @@ func NewLambdaImporter(ctx context.Context, uri string) (Importer, error) {
 	region := q.Get("region")
 	credentials := q.Get("credentials")
 	func_type := q.Get("type")
-
+	
 	dsn := fmt.Sprintf("region=%s credentials=%s", region, credentials)
 
 	lambda_func, err := lambda.NewLambdaFunctionWithDSN(dsn, func_name, func_type)
@@ -51,13 +55,13 @@ func NewLambdaImporter(ctx context.Context, uri string) (Importer, error) {
 }
 
 func (i *LambdaImporter) ImportIDs(ctx context.Context, ids ...int64) error {
-
-	import_ev := map[string]interface{}{
-		"ids": ids,
+	
+	import_ev := ImportEvent{
+		Ids: ids,
 	}
 
 	_, err := i.lambda_func.Invoke(ctx, import_ev)
-
+	
 	if err != nil {
 		return fmt.Errorf("Failed to invoke Lambda function, %w", err)
 	}
