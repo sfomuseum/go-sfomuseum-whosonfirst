@@ -121,8 +121,8 @@ github.com/aaronland/go-artisanal-integers-proxy v0.2.5 h1:jkQ0p8TLCTPFH8rqFqYWM
 github.com/aaronland/go-artisanal-integers-proxy v0.2.5/go.mod h1:mldeud4G0Yn4a+VKZ+CHrg5mw3u5OIOok25q5OKsOrM=
 github.com/aaronland/go-aws-dynamodb v0.0.3 h1:/ADReanyCsM7/+ZI6jszaWXnSAQlzGlOpnLdS9uQP2E=
 github.com/aaronland/go-aws-dynamodb v0.0.3/go.mod h1:PH87ljvTerzB3qT87pxnbvbcHxk0siauVyOG6D5w31A=
-github.com/aaronland/go-aws-lambda v0.0.1 h1:hOYAmkeJghLAVSukb1YJ8J3L2sxqltSJgbnLjEi+ijI=
-github.com/aaronland/go-aws-lambda v0.0.1/go.mod h1:qF/UgzwqQl+PC8puGhA9UXgjEj2h8fw02PvzpkrBrLU=
+github.com/aaronland/go-aws-lambda v0.0.2 h1:OUKmXIFwsjsaHsWwZq/3yPg8B3yIO9s77ldc+8PiqGg=
+github.com/aaronland/go-aws-lambda v0.0.2/go.mod h1:vqUoaD1lZ9IahczezDAeYVDZ4LrNX0B/O1cSAXwkZv8=
 github.com/aaronland/go-aws-session v0.0.6 h1:Dp1Hvg7s1qM1xJ2byktEdB16i9t6wx6tMcZRpMoSwpo=
 github.com/aaronland/go-aws-session v0.0.6/go.mod h1:jflsOdd7QkD0ugdTEfU2UYpFjytP8AxiBxP++s10x88=
 github.com/aaronland/go-brooklynintegers-api v1.2.1/go.mod h1:vFyhY89Uc0LDZEaEam5EQ+2La2VlkTvSfExuZgZhmX4=
@@ -164,11 +164,11 @@ github.com/aws/aws-lambda-go v1.10.0/go.mod h1:zUsUQhAUjYzR8AuduJPCfhBuKWUaDbQiP
 github.com/aws/aws-sdk-go v1.15.27/go.mod h1:mFuSZ37Z9YOHbQEwBWztmVzqXrEkub65tZoCYDt7FT0=
 github.com/aws/aws-sdk-go v1.37.0/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
 github.com/aws/aws-sdk-go v1.38.53/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
-github.com/aws/aws-sdk-go v1.40.43/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
 github.com/aws/aws-sdk-go v1.41.17/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
 github.com/aws/aws-sdk-go v1.43.31/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
-github.com/aws/aws-sdk-go v1.44.11 h1:eIC59RrNY7xXYmGy/kKkLj4PGB325Jca22lcxZwbpBE=
 github.com/aws/aws-sdk-go v1.44.11/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
+github.com/aws/aws-sdk-go v1.44.72 h1:i7J5XT7pjBjtl1OrdIhiQHzsG89wkZCcM1HhyK++3DI=
+github.com/aws/aws-sdk-go v1.44.72/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go-v2 v1.16.2 h1:fqlCk6Iy3bnCumtrLz9r3mJ/2gUT0pJ0wLFVIdWh+JA=
 github.com/aws/aws-sdk-go-v2 v1.16.2/go.mod h1:ytwTPBG6fXTZLxxeeCCWj2/EMYp/xDUgX+OET6TLNNU=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.1/go.mod h1:n8Bs1ElDD2wJ9kCRTczA83gYbBmjSwZp3umc6zF4EeM=

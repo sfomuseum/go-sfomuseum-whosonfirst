@@ -3,7 +3,7 @@ module github.com/sfomuseum/go-sfomuseum-whosonfirst
 go 1.16
 
 require (
-	github.com/aaronland/go-aws-lambda v0.0.1
+	github.com/aaronland/go-aws-lambda v0.0.2
 	github.com/aaronland/go-roster v1.0.0
 	github.com/aws/aws-lambda-go v1.10.0
 	github.com/mitchellh/go-wordwrap v1.0.1

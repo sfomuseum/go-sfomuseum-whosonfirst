@@ -38,6 +38,10 @@ func NewLambdaImporter(ctx context.Context, uri string) (Importer, error) {
 	region := q.Get("region")
 	credentials := q.Get("credentials")
 	func_type := q.Get("type")
+
+	if func_type == "" {
+		func_type = "Event"
+	}
 	
 	dsn := fmt.Sprintf("region=%s credentials=%s", region, credentials)
 
