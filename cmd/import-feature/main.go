@@ -20,7 +20,7 @@ import (
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
-	"github.com/sfomuseum/go-sfomuseum-whosonfirst/filter"	
+	"github.com/sfomuseum/go-sfomuseum-whosonfirst/filter"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/whosonfirst/go-reader"
 	gh_reader "github.com/whosonfirst/go-reader-github"
@@ -51,18 +51,18 @@ func main() {
 
 	/*
 
-	data_reader_uri := fs.String("data-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data&branch={data_branch}", "A valid whosonfirst/go-reader URI.")
+		data_reader_uri := fs.String("data-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data&branch={data_branch}", "A valid whosonfirst/go-reader URI.")
 
-	properties_reader_uri := fs.String("properties-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=properties&branch={props_branch}", "A valid whosonfirst/go-reader URI.")
+		properties_reader_uri := fs.String("properties-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=properties&branch={props_branch}", "A valid whosonfirst/go-reader URI.")
 
-	filter_reader_uri := fs.String("filter-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data", "A valid whosonfirst/go-reader URI.")
-	
-	data_writer_uri := fs.String("data-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+		filter_reader_uri := fs.String("filter-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data", "A valid whosonfirst/go-reader URI.")
 
-	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+		data_writer_uri := fs.String("data-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
+
+		properties_writer_uri := fs.String("properties-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
 
 	*/
-	
+
 	token_uri := fs.String("access-token-uri", "", "A valid GitHub API access token. This will be used to replace the \"{access_token}\" string template in any of the \"*-reader-uri\" or \"*-writer-uri\" flag values.")
 
 	retries := fs.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
@@ -105,7 +105,7 @@ func main() {
 	if *filter_reader_uri == "" {
 		*filter_reader_uri = *data_reader_uri
 	}
-	
+
 	now := time.Now()
 	ts := now.Unix()
 	pid := os.Getpid()
@@ -120,9 +120,9 @@ func main() {
 
 	*properties_reader_uri = strings.Replace(*properties_reader_uri, "{props_branch}", props_branch, 1)
 	*properties_writer_uri = strings.Replace(*properties_writer_uri, "{props_branch}", props_branch, 1)
-	
+
 	*filter_reader_uri = strings.Replace(*filter_reader_uri, "{data_branch}", data_branch, 1)
-	
+
 	if *user_agent != "" {
 
 		wof_u, err := url.Parse(*wof_reader_uri)
@@ -179,7 +179,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create new filter reader, %v", err)
 	}
-	
+
 	*data_writer_uri, err = gh_writer.EnsureGitHubAccessToken(ctx, *data_writer_uri, *token_uri)
 
 	if err != nil {
@@ -277,21 +277,21 @@ func main() {
 		if len(ids) == 0 {
 			return nil
 		}
-		
+
 		if *enable_filtering {
-			
+
 			ids, err := filter.FilterByLastModified(ctx, wof_r, filter_r, ids...)
 
 			if err != nil {
 				return fmt.Errorf("Failed to filter IDs, %w", err)
 			}
-			
+
 			if len(ids) == 0 {
 				log.Println("No IDs to import after filtering")
 				return nil
 			}
 		}
-		
+
 		err = wof_import.ImportFeatures(ctx, import_opts, ids...)
 
 		if err != nil {
