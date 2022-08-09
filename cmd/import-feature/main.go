@@ -20,6 +20,7 @@ import (
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
+	"github.com/sfomuseum/go-sfomuseum-whosonfirst/filter"	
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/whosonfirst/go-reader"
 	gh_reader "github.com/whosonfirst/go-reader-github"
@@ -252,9 +253,17 @@ func main() {
 
 	import_ids := func(ctx context.Context, ids ...int64) error {
 
-		// filter ids here...
+		ids, err := filter.FilterByLastModified(ctx, wof_r, data_r, ids...)
 
-		err := wof_import.ImportFeatures(ctx, import_opts, ids...)
+		if err != nil {
+			return fmt.Errorf("Failed to filter IDs, %w", err)
+		}
+
+		if len(ids) == 0 {
+			return nil
+		}
+
+		err = wof_import.ImportFeatures(ctx, import_opts, ids...)
 
 		if err != nil {
 			return fmt.Errorf("Failed to import IDs, %v", err)
