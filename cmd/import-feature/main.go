@@ -41,28 +41,34 @@ func main() {
 
 	wof_reader_uri := fs.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
 
-	// data_reader_uri := fs.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
-	// properties_reader_uri := fs.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
+	data_reader_uri := fs.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
+	properties_reader_uri := fs.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
 
-	// data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
-	// properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+	data_writer_uri := fs.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
+	properties_writer_uri := fs.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+
+	filter_reader_uri := fs.String("filter-reader-uri", "", "A valid whosonfirst/go-reader URI. If empty the value of the -data-reader-uri flag will be used.")
+
+	/*
 
 	data_reader_uri := fs.String("data-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data&branch={data_branch}", "A valid whosonfirst/go-reader URI.")
 
 	properties_reader_uri := fs.String("properties-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=properties&branch={props_branch}", "A valid whosonfirst/go-reader URI.")
 
-	// data_writer_uri := fs.String("data-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch=test", "A valid whosonfirst/go-writer URI.")
-
-	// properties_writer_uri := fs.String("properties-writer-uri", "githubapi-tree://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch=test", "A valid whosonfirst/go-writer URI.")
-
+	filter_reader_uri := fs.String("filter-reader-uri", "githubapi://sfomuseum-data/sfomuseum-data-whosonfirst?access_token={access_token}&prefix=data", "A valid whosonfirst/go-reader URI.")
+	
 	data_writer_uri := fs.String("data-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=data&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
 
 	properties_writer_uri := fs.String("properties-writer-uri", "githubapi-branch://sfomuseum-data/sfomuseum-data-whosonfirst?prefix=properties&access_token={access_token}&email=sfomuseumbot@localhost&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true", "A valid whosonfirst/go-writer URI.")
 
-	token_uri := fs.String("access-token-uri", "", "")
+	*/
+	
+	token_uri := fs.String("access-token-uri", "", "A valid GitHub API access token. This will be used to replace the \"{access_token}\" string template in any of the \"*-reader-uri\" or \"*-writer-uri\" flag values.")
 
 	retries := fs.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
 	max_clients := fs.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
+
+	enable_filtering := fs.Bool("enable-filtering", true, "If true only source IDs with a lastmodified date greater than their target counterparts will be imported.")
 
 	user_agent := fs.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri fs")
 
@@ -71,9 +77,6 @@ func main() {
 
 	var int_properties multi.KeyValueInt64
 	fs.Var(&int_properties, "int-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a int(64) value.")
-
-	// var float_properties multi.KeyValueFloat64
-	// flag.Var(&float_properties, "float-property", "One or more {KEY}={VALUE} flags where {KEY} is a valid tidwall/gjson path and {VALUE} is a float(64) value.")
 
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Fetch one or more Who's on First records and, optionally, their ancestors.\n\n")
@@ -99,6 +102,10 @@ func main() {
 
 	ctx := context.Background()
 
+	if *filter_reader_uri == "" {
+		*filter_reader_uri = *data_reader_uri
+	}
+	
 	now := time.Now()
 	ts := now.Unix()
 	pid := os.Getpid()
@@ -113,7 +120,9 @@ func main() {
 
 	*properties_reader_uri = strings.Replace(*properties_reader_uri, "{props_branch}", props_branch, 1)
 	*properties_writer_uri = strings.Replace(*properties_writer_uri, "{props_branch}", props_branch, 1)
-
+	
+	*filter_reader_uri = strings.Replace(*filter_reader_uri, "{data_branch}", data_branch, 1)
+	
 	if *user_agent != "" {
 
 		wof_u, err := url.Parse(*wof_reader_uri)
@@ -159,6 +168,18 @@ func main() {
 		log.Fatalf("Failed to create new properties reader, %v", err)
 	}
 
+	*filter_reader_uri, err = gh_reader.EnsureGitHubAccessToken(ctx, *filter_reader_uri, *token_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to append token to data reader URI, %v", err)
+	}
+
+	filter_r, err := reader.NewReader(ctx, *filter_reader_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to create new filter reader, %v", err)
+	}
+	
 	*data_writer_uri, err = gh_writer.EnsureGitHubAccessToken(ctx, *data_writer_uri, *token_uri)
 
 	if err != nil {
@@ -253,16 +274,24 @@ func main() {
 
 	import_ids := func(ctx context.Context, ids ...int64) error {
 
-		ids, err := filter.FilterByLastModified(ctx, wof_r, data_r, ids...)
-
-		if err != nil {
-			return fmt.Errorf("Failed to filter IDs, %w", err)
-		}
-
 		if len(ids) == 0 {
 			return nil
 		}
+		
+		if *enable_filtering {
+			
+			ids, err := filter.FilterByLastModified(ctx, wof_r, filter_r, ids...)
 
+			if err != nil {
+				return fmt.Errorf("Failed to filter IDs, %w", err)
+			}
+			
+			if len(ids) == 0 {
+				log.Println("No IDs to import after filtering")
+				return nil
+			}
+		}
+		
 		err = wof_import.ImportFeatures(ctx, import_opts, ids...)
 
 		if err != nil {

@@ -66,6 +66,38 @@ Notes:
 
 pathN may be any valid Who's On First ID or URI that can be parsed by the go-whosonfirst-uri package.
 ```
+#### AWS Lambda
+
+##### Environment variables
+
+| Name | Value | Notes |
+| --- | --- | --- |
+| SFOMUSEUM_ACCESS_TOKEN_URI | awsparamstore://{KEY}?{REGION}&credentials=iam: | A valid `gocloud.dev/runtimevar` URI referencing a valid GitHub API access token. | 
+| SFOMUSEUM_DATA_READER_URI | githubapi://{GITHUB_ORG}/{GITHUB_REPO}?access_token={access_token}&prefix=data&branch={data_branch} | If the value of the `?branch=` paramter is "{data_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-data". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_DATA_WRITER_URI | githubapi-branch://{GITHUB_ORG}/{GITHUB_REPO}?prefix=data&access_token={access_token}&email={EMAIL}&description=update%20features&to-branch={data_branch}&merge=true&remove-on-merge=true | If the value of the `?branch=` paramter is "{data_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-data". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_ENABLE_FILTERING | true | |
+| SFOMUSEUM_FILTER_READER_URI | githubapi://{GITHUB_ORG}/{GITHUB_REPO}?access_token={access_token}&prefix=data | If empty the value of the `SFOMUSEUM_DATA_READER_URI` environment variable will be used. If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_MODE | lambda | |
+| SFOMUSEUM_PROPERTIES_READER_URI | githubapi://{GITHUB_ORG}/{GITHUB_REPO}?access_token={access_token}&prefix=properties&branch={props_branch} | If the value of the `?branch=` paramter is "{props_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-props". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+| SFOMUSEUM_PROPERTIES_WRITER_URI | githubapi-branch://{GITHUB_ORG}/{GITHUB_REPO}?prefix=properties&access_token={access_token}&email={EMAIL}&description=update%20properties&to-branch={props_branch}&merge=true&remove-on-merge=true | If the value of the `?branch=` paramter is "{props_branch}" it will replaced by "{UNIX_TIMESTAMP}-{PROCESS_ID}-props". If the value of `?access_token=` parameter is "{access_token}" it will be replaced by the value derived from the `SFOMUSEUM_ACCESS_TOKEN_URI` environment variable. |
+
+##### Import Events
+
+```
+type ImportEvent struct {
+	Ids []int64 `json:"ids"`
+}
+```
+
+For example:
+
+```
+{
+  "ids": [
+    101714471
+  ]
+}
+```
 
 ### merge-properties
 
