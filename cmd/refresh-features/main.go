@@ -17,7 +17,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer/v2"
+	"github.com/whosonfirst/go-writer/v3"
 	"io"
 	"log"
 	"net/url"

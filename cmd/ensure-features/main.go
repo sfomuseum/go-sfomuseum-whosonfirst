@@ -16,7 +16,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer/v2"
+	"github.com/whosonfirst/go-writer/v3"
 	"io"
 	"log"
 	"net/url"
@@ -112,7 +112,7 @@ func main() {
 		_, uri_args, err := uri.ParseURI(path)
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse %s, %w", path, err)
+			return fmt.Errorf("Failed to parse %s, %v", path, err)
 		}
 
 		if uri_args.IsAlternate {
@@ -160,13 +160,13 @@ func main() {
 	iter, err := iterator.NewIterator(ctx, *iterator_uri, iter_cb)
 
 	if err != nil {
-		log.Fatalf("Failed to create new iterator, %w", err)
+		log.Fatalf("Failed to create new iterator, %v", err)
 	}
 
 	err = iter.IterateURIs(ctx, iterator_sources...)
 
 	if err != nil {
-		log.Fatalf("Failed to iterate URIs, %w", err)
+		log.Fatalf("Failed to iterate URIs, %v", err)
 	}
 
 	//

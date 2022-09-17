@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/natefinch/atomic"
 	"io"
@@ -11,7 +12,6 @@ import (
 	"path/filepath"
 )
 
-// FileWriter is a struct that implements the `Writer` interface for writing documents as files on a local disk.
 type FileWriter struct {
 	Writer
 	root      string
@@ -37,29 +37,23 @@ func init() {
 	}
 }
 
-// NewFileWriter returns a new `FileWriter` instance for writing documents as files on a local disk,
-// configured by 'uri' in the form of:
-//
-//	fs://{PATH}
-//
-// Where {PATH} is an absolute path to an existing directory where files will be written.
 func NewFileWriter(ctx context.Context, uri string) (Writer, error) {
 
 	u, err := url.Parse(uri)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse uri, %w", err)
+		return nil, err
 	}
 
 	root := u.Path
 	info, err := os.Stat(root)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to stat '%s', %w", root, err)
+		return nil, err
 	}
 
 	if !info.IsDir() {
-		return nil, fmt.Errorf("root (%s) is not a directory", root)
+		return nil, errors.New("root is not a directory")
 	}
 
 	// check for dir/file mode query parameters here
@@ -73,8 +67,6 @@ func NewFileWriter(ctx context.Context, uri string) (Writer, error) {
 	return wr, nil
 }
 
-// Write copies the content of 'fh' to 'path', where 'path' is assumed to be relative to the root
-// path defined in the constuctor. If the root directory for 'path' does not exist it will be created.
 func (wr *FileWriter) Write(ctx context.Context, path string, fh io.ReadSeeker) (int64, error) {
 
 	abs_path := wr.WriterURI(ctx, path)
@@ -87,7 +79,7 @@ func (wr *FileWriter) Write(ctx context.Context, path string, fh io.ReadSeeker) 
 		err = os.MkdirAll(abs_root, wr.dir_mode)
 
 		if err != nil {
-			return 0, fmt.Errorf("Failed to create %s, %w", abs_root, err)
+			return 0, err
 		}
 	}
 
@@ -102,7 +94,7 @@ func (wr *FileWriter) Write(ctx context.Context, path string, fh io.ReadSeeker) 
 	tmp_file, err := os.OpenFile(tmp_path, os.O_RDWR|os.O_CREATE, 0600)
 
 	if err != nil {
-		return 0, fmt.Errorf("Failed to open temp file (%s), %w", tmp_path, err)
+		return 0, err
 	}
 
 	defer os.Remove(tmp_path)
@@ -110,37 +102,34 @@ func (wr *FileWriter) Write(ctx context.Context, path string, fh io.ReadSeeker) 
 	b, err := io.Copy(tmp_file, fh)
 
 	if err != nil {
-		return 0, fmt.Errorf("Failed to copy data to temp file (%s), %w", tmp_path, err)
+		return 0, err
 	}
 
 	err = tmp_file.Close()
 
 	if err != nil {
-		return 0, fmt.Errorf("Failed to close temp file (%s), %w", tmp_path, err)
+		return 0, err
 	}
 
 	err = os.Chmod(tmp_path, wr.file_mode)
 
 	if err != nil {
-		return 0, fmt.Errorf("Failed to assign permissions for temp file (%s), %w", tmp_path, err)
+		return 0, err
 	}
 
 	err = atomic.ReplaceFile(tmp_path, abs_path)
 
 	if err != nil {
-		return 0, fmt.Errorf("Failed to install final file (%s) from temp file (%s), %w", abs_path, tmp_path, err)
+		return 0, err
 	}
 
 	return b, nil
 }
 
-// WriterURI returns the absolute URL for 'path' relative to the root directory defined
-// in the `FileWriter` constuctor.
 func (wr *FileWriter) WriterURI(ctx context.Context, path string) string {
 	return filepath.Join(wr.root, path)
 }
 
-// Close closes the underlying writer mechanism.
 func (wr *FileWriter) Close(ctx context.Context) error {
 	return nil
 }

@@ -7,7 +7,7 @@ import (
 	"io"
 )
 
-// Type MultiWriter implements the `Writer` interface for writing documents to multiple `Writer` instances.
+// Type MultiWriter holds mutltiple Writer instances.
 type MultiWriter struct {
 	Writer
 	writers []Writer
@@ -24,8 +24,6 @@ func NewMultiWriter(writers ...Writer) Writer {
 	return wr
 }
 
-// Write copies the contents of 'fh' to each of the writers contained by 'mw' in the order they
-// were specified.
 func (mw *MultiWriter) Write(ctx context.Context, key string, fh io.ReadSeeker) (int64, error) {
 
 	errors := make([]error, 0)
@@ -59,16 +57,10 @@ func (mw *MultiWriter) Write(ctx context.Context, key string, fh io.ReadSeeker) 
 	return count, nil
 }
 
-// WriteURI returns an empty string. Because 'mw' has multiple underlying `Writer` instances
-// each of which specifies their own `WriteURI` methods it's either a choice of returning a
-// concatenated string (with all the values) or an empty string. The decision was made to opt
-// for the latter.
 func (mw *MultiWriter) WriterURI(ctx context.Context, key string) string {
 	return ""
 }
 
-// Closes closes each of the underlying `Writer` instances (in the order they were specified
-// to the 'mw' instance).
 func (mw *MultiWriter) Close(ctx context.Context) error {
 
 	errors := make([]error, 0)

@@ -26,8 +26,8 @@ import (
 	gh_reader "github.com/whosonfirst/go-reader-github"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	gh_writer "github.com/whosonfirst/go-writer-github/v2"
-	"github.com/whosonfirst/go-writer/v2"
+	gh_writer "github.com/whosonfirst/go-writer-github/v3"
+	"github.com/whosonfirst/go-writer/v3"
 	"log"
 	"net/url"
 	"os"
@@ -97,7 +97,7 @@ func main() {
 	err := flagset.SetFlagsFromEnvVars(fs, "SFOMUSEUM")
 
 	if err != nil {
-		log.Fatalf("Failed to set flags from environment variables, %w", err)
+		log.Fatalf("Failed to set flags from environment variables, %v", err)
 	}
 
 	ctx := context.Background()
