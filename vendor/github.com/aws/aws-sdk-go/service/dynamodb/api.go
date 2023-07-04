@@ -190,10 +190,11 @@ func (c *DynamoDB) BatchGetItemRequest(input *BatchGetItemInput) (req *request.R
 //
 // A single operation can retrieve up to 16 MB of data, which can contain as
 // many as 100 items. BatchGetItem returns a partial result if the response
-// size limit is exceeded, the table's provisioned throughput is exceeded, or
-// an internal processing failure occurs. If a partial result is returned, the
-// operation returns a value for UnprocessedKeys. You can use this value to
-// retry the operation starting with the next item to get.
+// size limit is exceeded, the table's provisioned throughput is exceeded, more
+// than 1MB per partition is requested, or an internal processing failure occurs.
+// If a partial result is returned, the operation returns a value for UnprocessedKeys.
+// You can use this value to retry the operation starting with the next item
+// to get.
 //
 // If you request more than 100 items, BatchGetItem returns a ValidationException
 // with the message "Too many items requested for the BatchGetItem call."
@@ -223,7 +224,8 @@ func (c *DynamoDB) BatchGetItemRequest(input *BatchGetItemInput) (req *request.R
 // in the request. If you want strongly consistent reads instead, you can set
 // ConsistentRead to true for any or all tables.
 //
-// In order to minimize response latency, BatchGetItem retrieves items in parallel.
+// In order to minimize response latency, BatchGetItem may retrieve items in
+// parallel.
 //
 // When designing your application, keep in mind that DynamoDB does not return
 // items in any particular order. To help parse the response by item, include
@@ -676,6 +678,12 @@ func (c *DynamoDB) CreateBackupRequest(input *CreateBackupInput) (req *request.R
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - InternalServerError
 //     An error occurred on the server side.
 //
@@ -773,8 +781,13 @@ func (c *DynamoDB) CreateGlobalTableRequest(input *CreateGlobalTableInput) (req 
 // relationship between two or more DynamoDB tables with the same table name
 // in the provided Regions.
 //
-// This operation only applies to Version 2017.11.29 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
-// of global tables.
+// This operation only applies to Version 2017.11.29 (Legacy) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. We recommend using Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// when creating new global tables, as it provides greater flexibility, higher
+// efficiency and consumes less write capacity than 2017.11.29 (Legacy). To
+// determine which version you are using, see Determining the version (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.DetermineVersion.html).
+// To update existing global tables from version 2017.11.29 (Legacy) to version
+// 2019.11.21 (Current), see Updating global tables (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_upgrade.html).
 //
 // If you want to add a new replica table to a global table, each of the following
 // conditions must be true:
@@ -839,6 +852,12 @@ func (c *DynamoDB) CreateGlobalTableRequest(input *CreateGlobalTableInput) (req 
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -989,6 +1008,12 @@ func (c *DynamoDB) CreateTableRequest(input *CreateTableInput) (req *request.Req
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - InternalServerError
 //     An error occurred on the server side.
 //
@@ -1118,6 +1143,12 @@ func (c *DynamoDB) DeleteBackupRequest(input *DeleteBackupInput) (req *request.R
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -1363,6 +1394,9 @@ func (c *DynamoDB) DeleteTableRequest(input *DeleteTableInput) (req *request.Req
 // If the specified table does not exist, DynamoDB returns a ResourceNotFoundException.
 // If table is already in the DELETING state, no error is returned.
 //
+// This operation only applies to Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// of global tables.
+//
 // DynamoDB might continue to accept data read and write operations, such as
 // GetItem and PutItem, on a table in the DELETING state until the table deletion
 // is complete.
@@ -1409,6 +1443,12 @@ func (c *DynamoDB) DeleteTableRequest(input *DeleteTableInput) (req *request.Req
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -1708,7 +1748,7 @@ func (c *DynamoDB) DescribeContributorInsightsRequest(input *DescribeContributor
 
 // DescribeContributorInsights API operation for Amazon DynamoDB.
 //
-// Returns information about contributor insights, for a given table or global
+// Returns information about contributor insights for a given table or global
 // secondary index.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -1792,7 +1832,8 @@ func (c *DynamoDB) DescribeEndpointsRequest(input *DescribeEndpointsInput) (req 
 
 // DescribeEndpoints API operation for Amazon DynamoDB.
 //
-// Returns the regional endpoint information.
+// Returns the regional endpoint information. For more information on policy
+// permissions, please see Internetwork traffic privacy (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/inter-network-traffic-privacy.html#inter-network-traffic-DescribeEndpoints).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1968,6 +2009,12 @@ func (c *DynamoDB) DescribeExportRequest(input *DescribeExportInput) (req *reque
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - InternalServerError
 //     An error occurred on the server side.
 //
@@ -2063,10 +2110,13 @@ func (c *DynamoDB) DescribeGlobalTableRequest(input *DescribeGlobalTableInput) (
 //
 // Returns information about the specified global table.
 //
-// This operation only applies to Version 2017.11.29 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
-// of global tables. If you are using global tables Version 2019.11.21 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
-// you can use DescribeTable (https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DescribeTable.html)
-// instead.
+// This operation only applies to Version 2017.11.29 (Legacy) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. We recommend using Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// when creating new global tables, as it provides greater flexibility, higher
+// efficiency and consumes less write capacity than 2017.11.29 (Legacy). To
+// determine which version you are using, see Determining the version (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.DetermineVersion.html).
+// To update existing global tables from version 2017.11.29 (Legacy) to version
+// 2019.11.21 (Current), see Updating global tables (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_upgrade.html).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2175,8 +2225,13 @@ func (c *DynamoDB) DescribeGlobalTableSettingsRequest(input *DescribeGlobalTable
 //
 // Describes Region-specific settings for a global table.
 //
-// This operation only applies to Version 2017.11.29 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
-// of global tables.
+// This operation only applies to Version 2017.11.29 (Legacy) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. We recommend using Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// when creating new global tables, as it provides greater flexibility, higher
+// efficiency and consumes less write capacity than 2017.11.29 (Legacy). To
+// determine which version you are using, see Determining the version (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.DetermineVersion.html).
+// To update existing global tables from version 2017.11.29 (Legacy) to version
+// 2019.11.21 (Current), see Updating global tables (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_upgrade.html).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2635,6 +2690,9 @@ func (c *DynamoDB) DescribeTableRequest(input *DescribeTableInput) (req *request
 // table, when it was created, the primary key schema, and any indexes on the
 // table.
 //
+// This operation only applies to Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// of global tables.
+//
 // If you issue a DescribeTable request immediately after a CreateTable request,
 // DynamoDB might return a ResourceNotFoundException. This is because DescribeTable
 // uses an eventually consistent query, and the metadata for your table might
@@ -2724,7 +2782,7 @@ func (c *DynamoDB) DescribeTableReplicaAutoScalingRequest(input *DescribeTableRe
 //
 // Describes auto scaling settings across replicas of the global table at once.
 //
-// This operation only applies to Version 2019.11.21 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// This operation only applies to Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
 // of global tables.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -2973,6 +3031,12 @@ func (c *DynamoDB) DisableKinesisStreamingDestinationRequest(input *DisableKines
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - ResourceInUseException
 //     The operation conflicts with the resource's availability. For example, you
 //     attempted to recreate an existing table, or tried to delete a table currently
@@ -3106,6 +3170,12 @@ func (c *DynamoDB) EnableKinesisStreamingDestinationRequest(input *EnableKinesis
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - ResourceInUseException
 //     The operation conflicts with the resource's availability. For example, you
 //     attempted to recreate an existing table, or tried to delete a table currently
@@ -3192,7 +3262,8 @@ func (c *DynamoDB) ExecuteStatementRequest(input *ExecuteStatementInput) (req *r
 // A single SELECT statement response can return up to the maximum number of
 // items (if using the Limit parameter) or a maximum of 1 MB of data (and then
 // apply any filtering to the results using WHERE clause). If LastEvaluatedKey
-// is present in the response, you need to paginate the result set.
+// is present in the response, you need to paginate the result set. If NextToken
+// is present, you need to paginate the result set and include NextToken.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -3396,7 +3467,7 @@ func (c *DynamoDB) ExecuteTransactionRequest(input *ExecuteTransactionInput) (re
 //     as DynamoDB is automatically scaling the table. Throughput exceeds the
 //     current capacity for one or more global secondary indexes. DynamoDB is
 //     automatically scaling your index so please try again shortly. This message
-//     is returned when when writes get throttled on an On-Demand GSI as DynamoDB
+//     is returned when writes get throttled on an On-Demand GSI as DynamoDB
 //     is automatically scaling the GSI.
 //
 //   - Validation Error: Code: ValidationError Messages: One or more parameter
@@ -3413,6 +3484,47 @@ func (c *DynamoDB) ExecuteTransactionRequest(input *ExecuteTransactionInput) (re
 //
 //   - TransactionInProgressException
 //     The transaction with the given request token is already in progress.
+//
+//     Recommended Settings
+//
+//     This is a general recommendation for handling the TransactionInProgressException.
+//     These settings help ensure that the client retries will trigger completion
+//     of the ongoing TransactWriteItems request.
+//
+//   - Set clientExecutionTimeout to a value that allows at least one retry
+//     to be processed after 5 seconds have elapsed since the first attempt for
+//     the TransactWriteItems operation.
+//
+//   - Set socketTimeout to a value a little lower than the requestTimeout
+//     setting.
+//
+//   - requestTimeout should be set based on the time taken for the individual
+//     retries of a single HTTP request for your use case, but setting it to
+//     1 second or higher should work well to reduce chances of retries and TransactionInProgressException
+//     errors.
+//
+//   - Use exponential backoff when retrying and tune backoff if needed.
+//
+//     Assuming default retry policy (https://github.com/aws/aws-sdk-java/blob/fd409dee8ae23fb8953e0bb4dbde65536a7e0514/aws-java-sdk-core/src/main/java/com/amazonaws/retry/PredefinedRetryPolicies.java#L97),
+//     example timeout settings based on the guidelines above are as follows:
+//
+//     Example timeline:
+//
+//   - 0-1000 first attempt
+//
+//   - 1000-1500 first sleep/delay (default retry policy uses 500 ms as base
+//     delay for 4xx errors)
+//
+//   - 1500-2500 second attempt
+//
+//   - 2500-3500 second sleep/delay (500 * 2, exponential backoff)
+//
+//   - 3500-4500 third attempt
+//
+//   - 4500-6500 third sleep/delay (500 * 2^2)
+//
+//   - 6500-7500 fourth attempt (this can trigger inline recovery since 5 seconds
+//     have elapsed since the first attempt reached TC)
 //
 //   - IdempotentParameterMismatchException
 //     DynamoDB rejected the request because you retried a request with a different
@@ -3536,6 +3648,12 @@ func (c *DynamoDB) ExportTableToPointInTimeRequest(input *ExportTableToPointInTi
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InvalidExportTimeException
 //     The specified ExportTime is outside of the point in time recovery window.
@@ -3771,6 +3889,12 @@ func (c *DynamoDB) ImportTableRequest(input *ImportTableInput) (req *request.Req
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - ImportConflictException
 //     There was a conflict when importing from the specified S3 source. This can
@@ -4128,6 +4252,12 @@ func (c *DynamoDB) ListExportsRequest(input *ListExportsInput) (req *request.Req
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - InternalServerError
 //     An error occurred on the server side.
 //
@@ -4274,8 +4404,13 @@ func (c *DynamoDB) ListGlobalTablesRequest(input *ListGlobalTablesInput) (req *r
 //
 // Lists all global tables that have a replica in the specified Region.
 //
-// This operation only applies to Version 2017.11.29 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
-// of global tables.
+// This operation only applies to Version 2017.11.29 (Legacy) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. We recommend using Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// when creating new global tables, as it provides greater flexibility, higher
+// efficiency and consumes less write capacity than 2017.11.29 (Legacy). To
+// determine which version you are using, see Determining the version (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.DetermineVersion.html).
+// To update existing global tables from version 2017.11.29 (Legacy) to version
+// 2019.11.21 (Current), see Updating global tables (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_upgrade.html).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -4386,6 +4521,12 @@ func (c *DynamoDB) ListImportsRequest(input *ListImportsInput) (req *request.Req
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/dynamodb-2012-08-10/ListImports
 func (c *DynamoDB) ListImports(input *ListImportsInput) (*ListImportsOutput, error) {
@@ -5185,7 +5326,7 @@ func (c *DynamoDB) RestoreTableFromBackupRequest(input *RestoreTableFromBackupIn
 // RestoreTableFromBackup API operation for Amazon DynamoDB.
 //
 // Creates a new table from an existing backup. Any number of users can execute
-// up to 4 concurrent restores (any type of restore) in a given account.
+// up to 50 concurrent restores (any type of restore) in a given account.
 //
 // You can call RestoreTableFromBackup at a maximum rate of 10 times per second.
 //
@@ -5241,6 +5382,12 @@ func (c *DynamoDB) RestoreTableFromBackupRequest(input *RestoreTableFromBackupIn
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -5408,6 +5555,12 @@ func (c *DynamoDB) RestoreTableToPointInTimeRequest(input *RestoreTableToPointIn
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InvalidRestoreTimeException
 //     An invalid restore time was specified. RestoreDateTime must be between EarliestRestorableDateTime
@@ -5749,6 +5902,12 @@ func (c *DynamoDB) TagResourceRequest(input *TagResourceInput) (req *request.Req
 //
 //     There is a soft account quota of 2,500 tables.
 //
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
+//
 //   - ResourceNotFoundException
 //     The operation tried to access a nonexistent table or index. The resource
 //     might not be specified correctly, or its status might not be ACTIVE.
@@ -5871,7 +6030,7 @@ func (c *DynamoDB) TransactGetItemsRequest(input *TransactGetItemsInput) (req *r
 //
 //   - There is a user error, such as an invalid data format.
 //
-//   - The aggregate size of the items in the transaction cannot exceed 4 MB.
+//   - The aggregate size of the items in the transaction exceeded 4 MB.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5958,7 +6117,7 @@ func (c *DynamoDB) TransactGetItemsRequest(input *TransactGetItemsInput) (req *r
 //     as DynamoDB is automatically scaling the table. Throughput exceeds the
 //     current capacity for one or more global secondary indexes. DynamoDB is
 //     automatically scaling your index so please try again shortly. This message
-//     is returned when when writes get throttled on an On-Demand GSI as DynamoDB
+//     is returned when writes get throttled on an On-Demand GSI as DynamoDB
 //     is automatically scaling the GSI.
 //
 //   - Validation Error: Code: ValidationError Messages: One or more parameter
@@ -6219,7 +6378,7 @@ func (c *DynamoDB) TransactWriteItemsRequest(input *TransactWriteItemsInput) (re
 //     as DynamoDB is automatically scaling the table. Throughput exceeds the
 //     current capacity for one or more global secondary indexes. DynamoDB is
 //     automatically scaling your index so please try again shortly. This message
-//     is returned when when writes get throttled on an On-Demand GSI as DynamoDB
+//     is returned when writes get throttled on an On-Demand GSI as DynamoDB
 //     is automatically scaling the GSI.
 //
 //   - Validation Error: Code: ValidationError Messages: One or more parameter
@@ -6236,6 +6395,47 @@ func (c *DynamoDB) TransactWriteItemsRequest(input *TransactWriteItemsInput) (re
 //
 //   - TransactionInProgressException
 //     The transaction with the given request token is already in progress.
+//
+//     Recommended Settings
+//
+//     This is a general recommendation for handling the TransactionInProgressException.
+//     These settings help ensure that the client retries will trigger completion
+//     of the ongoing TransactWriteItems request.
+//
+//   - Set clientExecutionTimeout to a value that allows at least one retry
+//     to be processed after 5 seconds have elapsed since the first attempt for
+//     the TransactWriteItems operation.
+//
+//   - Set socketTimeout to a value a little lower than the requestTimeout
+//     setting.
+//
+//   - requestTimeout should be set based on the time taken for the individual
+//     retries of a single HTTP request for your use case, but setting it to
+//     1 second or higher should work well to reduce chances of retries and TransactionInProgressException
+//     errors.
+//
+//   - Use exponential backoff when retrying and tune backoff if needed.
+//
+//     Assuming default retry policy (https://github.com/aws/aws-sdk-java/blob/fd409dee8ae23fb8953e0bb4dbde65536a7e0514/aws-java-sdk-core/src/main/java/com/amazonaws/retry/PredefinedRetryPolicies.java#L97),
+//     example timeout settings based on the guidelines above are as follows:
+//
+//     Example timeline:
+//
+//   - 0-1000 first attempt
+//
+//   - 1000-1500 first sleep/delay (default retry policy uses 500 ms as base
+//     delay for 4xx errors)
+//
+//   - 1500-2500 second attempt
+//
+//   - 2500-3500 second sleep/delay (500 * 2, exponential backoff)
+//
+//   - 3500-4500 third attempt
+//
+//   - 4500-6500 third sleep/delay (500 * 2^2)
+//
+//   - 6500-7500 fourth attempt (this can trigger inline recovery since 5 seconds
+//     have elapsed since the first attempt reached TC)
 //
 //   - IdempotentParameterMismatchException
 //     DynamoDB rejected the request because you retried a request with a different
@@ -6379,6 +6579,12 @@ func (c *DynamoDB) UntagResourceRequest(input *UntagResourceInput) (req *request
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - ResourceNotFoundException
 //     The operation tried to access a nonexistent table or index. The resource
@@ -6700,6 +6906,19 @@ func (c *DynamoDB) UpdateGlobalTableRequest(input *UpdateGlobalTableInput) (req 
 // schema, have DynamoDB Streams enabled, and have the same provisioned and
 // maximum write capacity units.
 //
+// This operation only applies to Version 2017.11.29 (Legacy) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. We recommend using Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// when creating new global tables, as it provides greater flexibility, higher
+// efficiency and consumes less write capacity than 2017.11.29 (Legacy). To
+// determine which version you are using, see Determining the version (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.DetermineVersion.html).
+// To update existing global tables from version 2017.11.29 (Legacy) to version
+// 2019.11.21 (Current), see Updating global tables (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_upgrade.html).
+//
+// This operation only applies to Version 2017.11.29 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. If you are using global tables Version 2019.11.21 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// you can use DescribeTable (https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DescribeTable.html)
+// instead.
+//
 // Although you can use UpdateGlobalTable to add replicas and remove replicas
 // in a single request, for simplicity we recommend that you issue separate
 // requests for adding or removing replicas.
@@ -6833,6 +7052,14 @@ func (c *DynamoDB) UpdateGlobalTableSettingsRequest(input *UpdateGlobalTableSett
 //
 // Updates settings for a global table.
 //
+// This operation only applies to Version 2017.11.29 (Legacy) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V1.html)
+// of global tables. We recommend using Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// when creating new global tables, as it provides greater flexibility, higher
+// efficiency and consumes less write capacity than 2017.11.29 (Legacy). To
+// determine which version you are using, see Determining the version (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.DetermineVersion.html).
+// To update existing global tables from version 2017.11.29 (Legacy) to version
+// 2019.11.21 (Current), see Updating global tables (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_upgrade.html).
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -6867,6 +7094,12 @@ func (c *DynamoDB) UpdateGlobalTableSettingsRequest(input *UpdateGlobalTableSett
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - ResourceInUseException
 //     The operation conflicts with the resource's availability. For example, you
@@ -7107,6 +7340,9 @@ func (c *DynamoDB) UpdateTableRequest(input *UpdateTableInput) (req *request.Req
 // Modifies the provisioned throughput settings, global secondary indexes, or
 // DynamoDB Streams settings for a given table.
 //
+// This operation only applies to Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// of global tables.
+//
 // You can only perform one of the following operations at once:
 //
 //   - Modify the provisioned throughput settings of the table.
@@ -7155,6 +7391,12 @@ func (c *DynamoDB) UpdateTableRequest(input *UpdateTableInput) (req *request.Req
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -7226,7 +7468,7 @@ func (c *DynamoDB) UpdateTableReplicaAutoScalingRequest(input *UpdateTableReplic
 //
 // Updates auto scaling settings on your global tables at once.
 //
-// This operation only applies to Version 2019.11.21 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+// This operation only applies to Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
 // of global tables.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -7263,6 +7505,12 @@ func (c *DynamoDB) UpdateTableReplicaAutoScalingRequest(input *UpdateTableReplic
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -7420,6 +7668,12 @@ func (c *DynamoDB) UpdateTimeToLiveRequest(input *UpdateTimeToLiveInput) (req *r
 //     are allowed per account.
 //
 //     There is a soft account quota of 2,500 tables.
+//
+//     GetRecords was called with a value of more than 1000 for the limit request
+//     parameter.
+//
+//     More than 2 processes are reading from the same streams shard at the same
+//     time. Exceeding this limit may result in request throttling.
 //
 //   - InternalServerError
 //     An error occurred on the server side.
@@ -9009,6 +9263,10 @@ type BatchStatementError struct {
 	// The error code associated with the failed PartiQL batch statement.
 	Code *string `type:"string" enum:"BatchStatementErrorCodeEnum"`
 
+	// The item which caused the condition check to fail. This will be set if ReturnValuesOnConditionCheckFailure
+	// is specified as ALL_OLD.
+	Item map[string]*AttributeValue `type:"map"`
+
 	// The error message associated with the PartiQL batch response.
 	Message *string `type:"string"`
 }
@@ -9037,6 +9295,12 @@ func (s *BatchStatementError) SetCode(v string) *BatchStatementError {
 	return s
 }
 
+// SetItem sets the Item field's value.
+func (s *BatchStatementError) SetItem(v map[string]*AttributeValue) *BatchStatementError {
+	s.Item = v
+	return s
+}
+
 // SetMessage sets the Message field's value.
 func (s *BatchStatementError) SetMessage(v string) *BatchStatementError {
 	s.Message = &v
@@ -9052,6 +9316,14 @@ type BatchStatementRequest struct {
 
 	// The parameters associated with a PartiQL statement in the batch request.
 	Parameters []*AttributeValue `min:"1" type:"list"`
+
+	// An optional parameter that returns the item attributes for a PartiQL batch
+	// request operation that failed a condition check.
+	//
+	// There is no additional cost associated with requesting a return value aside
+	// from the small network and processing overhead of receiving a larger response.
+	// No read capacity units are consumed.
+	ReturnValuesOnConditionCheckFailure *string `type:"string" enum:"ReturnValuesOnConditionCheckFailure"`
 
 	// A valid PartiQL statement.
 	//
@@ -9105,6 +9377,12 @@ func (s *BatchStatementRequest) SetConsistentRead(v bool) *BatchStatementRequest
 // SetParameters sets the Parameters field's value.
 func (s *BatchStatementRequest) SetParameters(v []*AttributeValue) *BatchStatementRequest {
 	s.Parameters = v
+	return s
+}
+
+// SetReturnValuesOnConditionCheckFailure sets the ReturnValuesOnConditionCheckFailure field's value.
+func (s *BatchStatementRequest) SetReturnValuesOnConditionCheckFailure(v string) *BatchStatementRequest {
+	s.ReturnValuesOnConditionCheckFailure = &v
 	return s
 }
 
@@ -9717,14 +9995,20 @@ type ConditionCheck struct {
 	_ struct{} `type:"structure"`
 
 	// A condition that must be satisfied in order for a conditional update to succeed.
+	// For more information, see Condition expressions (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ConditionExpressions.html)
+	// in the Amazon DynamoDB Developer Guide.
 	//
 	// ConditionExpression is a required field
 	ConditionExpression *string `type:"string" required:"true"`
 
-	// One or more substitution tokens for attribute names in an expression.
+	// One or more substitution tokens for attribute names in an expression. For
+	// more information, see Expression attribute names (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html)
+	// in the Amazon DynamoDB Developer Guide.
 	ExpressionAttributeNames map[string]*string `type:"map"`
 
-	// One or more values that can be substituted in an expression.
+	// One or more values that can be substituted in an expression. For more information,
+	// see Condition expressions (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ConditionExpressions.html)
+	// in the Amazon DynamoDB Developer Guide.
 	ExpressionAttributeValues map[string]*AttributeValue `type:"map"`
 
 	// The primary key of the item to be checked. Each element consists of an attribute
@@ -9825,6 +10109,9 @@ type ConditionalCheckFailedException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
 
+	// Item which caused the ConditionalCheckFailedException.
+	Item map[string]*AttributeValue `type:"map"`
+
 	// The conditional request failed.
 	Message_ *string `locationName:"message" type:"string"`
 }
@@ -9872,7 +10159,7 @@ func (s *ConditionalCheckFailedException) OrigErr() error {
 }
 
 func (s *ConditionalCheckFailedException) Error() string {
-	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+	return fmt.Sprintf("%s: %s\n%s", s.Code(), s.Message(), s.String())
 }
 
 // Status code returns the HTTP status code for the request's response error.
@@ -10615,6 +10902,10 @@ type CreateTableInput struct {
 	//    workloads. PAY_PER_REQUEST sets the billing mode to On-Demand Mode (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html#HowItWorks.OnDemand).
 	BillingMode *string `type:"string" enum:"BillingMode"`
 
+	// Indicates whether deletion protection is to be enabled (true) or disabled
+	// (false) on the table.
+	DeletionProtectionEnabled *bool `type:"boolean"`
+
 	// One or more global secondary indexes (the maximum is 20) to be created on
 	// the table. Each global secondary index in the array includes the following:
 	//
@@ -10857,6 +11148,12 @@ func (s *CreateTableInput) SetAttributeDefinitions(v []*AttributeDefinition) *Cr
 // SetBillingMode sets the BillingMode field's value.
 func (s *CreateTableInput) SetBillingMode(v string) *CreateTableInput {
 	s.BillingMode = &v
+	return s
+}
+
+// SetDeletionProtectionEnabled sets the DeletionProtectionEnabled field's value.
+func (s *CreateTableInput) SetDeletionProtectionEnabled(v bool) *CreateTableInput {
+	s.DeletionProtectionEnabled = &v
 	return s
 }
 
@@ -11332,7 +11629,7 @@ type DeleteItemInput struct {
 	// A map of attribute names to AttributeValue objects, representing the primary
 	// key of the item to delete.
 	//
-	// For the primary key, you must provide all of the attributes. For example,
+	// For the primary key, you must provide all of the key attributes. For example,
 	// with a simple primary key, you only need to provide a value for the partition
 	// key. For a composite primary key, you must provide values for both the partition
 	// key and the sort key.
@@ -11376,6 +11673,14 @@ type DeleteItemInput struct {
 	// The ReturnValues parameter is used by several DynamoDB operations; however,
 	// DeleteItem does not recognize any values other than NONE or ALL_OLD.
 	ReturnValues *string `type:"string" enum:"ReturnValue"`
+
+	// An optional parameter that returns the item attributes for a DeleteItem operation
+	// that failed a condition check.
+	//
+	// There is no additional cost associated with requesting a return value aside
+	// from the small network and processing overhead of receiving a larger response.
+	// No read capacity units are consumed.
+	ReturnValuesOnConditionCheckFailure *string `type:"string" enum:"ReturnValuesOnConditionCheckFailure"`
 
 	// The name of the table from which to delete the item.
 	//
@@ -11474,6 +11779,12 @@ func (s *DeleteItemInput) SetReturnValues(v string) *DeleteItemInput {
 	return s
 }
 
+// SetReturnValuesOnConditionCheckFailure sets the ReturnValuesOnConditionCheckFailure field's value.
+func (s *DeleteItemInput) SetReturnValuesOnConditionCheckFailure(v string) *DeleteItemInput {
+	s.ReturnValuesOnConditionCheckFailure = &v
+	return s
+}
+
 // SetTableName sets the TableName field's value.
 func (s *DeleteItemInput) SetTableName(v string) *DeleteItemInput {
 	s.TableName = &v
@@ -11493,7 +11804,7 @@ type DeleteItemOutput struct {
 	// includes the total provisioned throughput consumed, along with statistics
 	// for the table and any indexes involved in the operation. ConsumedCapacity
 	// is only returned if the ReturnConsumedCapacity parameter was specified. For
-	// more information, see Provisioned Mode (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
+	// more information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
 	// in the Amazon DynamoDB Developer Guide.
 	ConsumedCapacity *ConsumedCapacity `type:"structure"`
 
@@ -13267,6 +13578,14 @@ type ExecuteStatementInput struct {
 	//    * NONE - No ConsumedCapacity details are included in the response.
 	ReturnConsumedCapacity *string `type:"string" enum:"ReturnConsumedCapacity"`
 
+	// An optional parameter that returns the item attributes for an ExecuteStatement
+	// operation that failed a condition check.
+	//
+	// There is no additional cost associated with requesting a return value aside
+	// from the small network and processing overhead of receiving a larger response.
+	// No read capacity units are consumed.
+	ReturnValuesOnConditionCheckFailure *string `type:"string" enum:"ReturnValuesOnConditionCheckFailure"`
+
 	// The PartiQL statement representing the operation to run.
 	//
 	// Statement is a required field
@@ -13343,6 +13662,12 @@ func (s *ExecuteStatementInput) SetParameters(v []*AttributeValue) *ExecuteState
 // SetReturnConsumedCapacity sets the ReturnConsumedCapacity field's value.
 func (s *ExecuteStatementInput) SetReturnConsumedCapacity(v string) *ExecuteStatementInput {
 	s.ReturnConsumedCapacity = &v
+	return s
+}
+
+// SetReturnValuesOnConditionCheckFailure sets the ReturnValuesOnConditionCheckFailure field's value.
+func (s *ExecuteStatementInput) SetReturnValuesOnConditionCheckFailure(v string) *ExecuteStatementInput {
+	s.ReturnValuesOnConditionCheckFailure = &v
 	return s
 }
 
@@ -14647,7 +14972,7 @@ type GetItemOutput struct {
 	// the total provisioned throughput consumed, along with statistics for the
 	// table and any indexes involved in the operation. ConsumedCapacity is only
 	// returned if the ReturnConsumedCapacity parameter was specified. For more
-	// information, see Read/Write Capacity Mode (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
+	// information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html#ItemSizeCalculations.Reads)
 	// in the Amazon DynamoDB Developer Guide.
 	ConsumedCapacity *ConsumedCapacity `type:"structure"`
 
@@ -16935,6 +17260,12 @@ func (s *KinesisDataStreamDestination) SetStreamArn(v string) *KinesisDataStream
 // are allowed per account.
 //
 // There is a soft account quota of 2,500 tables.
+//
+// GetRecords was called with a value of more than 1000 for the limit request
+// parameter.
+//
+// More than 2 processes are reading from the same streams shard at the same
+// time. Exceeding this limit may result in request throttling.
 type LimitExceededException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -18081,6 +18412,14 @@ type ParameterizedStatement struct {
 	// The parameter values.
 	Parameters []*AttributeValue `min:"1" type:"list"`
 
+	// An optional parameter that returns the item attributes for a PartiQL ParameterizedStatement
+	// operation that failed a condition check.
+	//
+	// There is no additional cost associated with requesting a return value aside
+	// from the small network and processing overhead of receiving a larger response.
+	// No read capacity units are consumed.
+	ReturnValuesOnConditionCheckFailure *string `type:"string" enum:"ReturnValuesOnConditionCheckFailure"`
+
 	// A PartiQL statment that uses parameters.
 	//
 	// Statement is a required field
@@ -18127,6 +18466,12 @@ func (s *ParameterizedStatement) Validate() error {
 // SetParameters sets the Parameters field's value.
 func (s *ParameterizedStatement) SetParameters(v []*AttributeValue) *ParameterizedStatement {
 	s.Parameters = v
+	return s
+}
+
+// SetReturnValuesOnConditionCheckFailure sets the ReturnValuesOnConditionCheckFailure field's value.
+func (s *ParameterizedStatement) SetReturnValuesOnConditionCheckFailure(v string) *ParameterizedStatement {
+	s.ReturnValuesOnConditionCheckFailure = &v
 	return s
 }
 
@@ -18382,7 +18727,7 @@ type ProvisionedThroughput struct {
 
 	// The maximum number of strongly consistent reads consumed per second before
 	// DynamoDB returns a ThrottlingException. For more information, see Specifying
-	// Read and Write Requirements (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithTables.html#ProvisionedThroughput)
+	// Read and Write Requirements (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html)
 	// in the Amazon DynamoDB Developer Guide.
 	//
 	// If read/write capacity mode is PAY_PER_REQUEST the value is set to 0.
@@ -18392,7 +18737,7 @@ type ProvisionedThroughput struct {
 
 	// The maximum number of writes consumed per second before DynamoDB returns
 	// a ThrottlingException. For more information, see Specifying Read and Write
-	// Requirements (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithTables.html#ProvisionedThroughput)
+	// Requirements (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html)
 	// in the Amazon DynamoDB Developer Guide.
 	//
 	// If read/write capacity mode is PAY_PER_REQUEST the value is set to 0.
@@ -18908,6 +19253,14 @@ type PutItemInput struct {
 	// PutItem does not recognize any values other than NONE or ALL_OLD.
 	ReturnValues *string `type:"string" enum:"ReturnValue"`
 
+	// An optional parameter that returns the item attributes for a PutItem operation
+	// that failed a condition check.
+	//
+	// There is no additional cost associated with requesting a return value aside
+	// from the small network and processing overhead of receiving a larger response.
+	// No read capacity units are consumed.
+	ReturnValuesOnConditionCheckFailure *string `type:"string" enum:"ReturnValuesOnConditionCheckFailure"`
+
 	// The name of the table to contain the item.
 	//
 	// TableName is a required field
@@ -19005,6 +19358,12 @@ func (s *PutItemInput) SetReturnValues(v string) *PutItemInput {
 	return s
 }
 
+// SetReturnValuesOnConditionCheckFailure sets the ReturnValuesOnConditionCheckFailure field's value.
+func (s *PutItemInput) SetReturnValuesOnConditionCheckFailure(v string) *PutItemInput {
+	s.ReturnValuesOnConditionCheckFailure = &v
+	return s
+}
+
 // SetTableName sets the TableName field's value.
 func (s *PutItemInput) SetTableName(v string) *PutItemInput {
 	s.TableName = &v
@@ -19024,7 +19383,7 @@ type PutItemOutput struct {
 	// the total provisioned throughput consumed, along with statistics for the
 	// table and any indexes involved in the operation. ConsumedCapacity is only
 	// returned if the ReturnConsumedCapacity parameter was specified. For more
-	// information, see Read/Write Capacity Mode (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
+	// information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
 	// in the Amazon DynamoDB Developer Guide.
 	ConsumedCapacity *ConsumedCapacity `type:"structure"`
 
@@ -19382,7 +19741,8 @@ type QueryInput struct {
 	//    to specifying ALL_ATTRIBUTES.
 	//
 	//    * COUNT - Returns the number of matching items, rather than the matching
-	//    items themselves.
+	//    items themselves. Note that this uses the same quantity of read capacity
+	//    units as getting the items, and is subject to the same item size calculations.
 	//
 	//    * SPECIFIC_ATTRIBUTES - Returns only the attributes listed in ProjectionExpression.
 	//    This return value is equivalent to specifying ProjectionExpression without
@@ -21938,7 +22298,8 @@ type ScanInput struct {
 	//    to specifying ALL_ATTRIBUTES.
 	//
 	//    * COUNT - Returns the number of matching items, rather than the matching
-	//    items themselves.
+	//    items themselves. Note that this uses the same quantity of read capacity
+	//    units as getting the items, and is subject to the same item size calculations.
 	//
 	//    * SPECIFIC_ATTRIBUTES - Returns only the attributes listed in ProjectionExpression.
 	//    This return value is equivalent to specifying ProjectionExpression without
@@ -22144,7 +22505,7 @@ type ScanOutput struct {
 	// the total provisioned throughput consumed, along with statistics for the
 	// table and any indexes involved in the operation. ConsumedCapacity is only
 	// returned if the ReturnConsumedCapacity parameter was specified. For more
-	// information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
+	// information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html#ItemSizeCalculations.Reads)
 	// in the Amazon DynamoDB Developer Guide.
 	ConsumedCapacity *ConsumedCapacity `type:"structure"`
 
@@ -22844,6 +23205,10 @@ type TableDescription struct {
 	// format.
 	CreationDateTime *time.Time `type:"timestamp"`
 
+	// Indicates whether deletion protection is enabled (true) or disabled (false)
+	// on the table.
+	DeletionProtectionEnabled *bool `type:"boolean"`
+
 	// The global secondary indexes, if any, on the table. Each index is scoped
 	// to a given partition key value. Each element is composed of:
 	//
@@ -23075,6 +23440,12 @@ func (s *TableDescription) SetBillingModeSummary(v *BillingModeSummary) *TableDe
 // SetCreationDateTime sets the CreationDateTime field's value.
 func (s *TableDescription) SetCreationDateTime(v time.Time) *TableDescription {
 	s.CreationDateTime = &v
+	return s
+}
+
+// SetDeletionProtectionEnabled sets the DeletionProtectionEnabled field's value.
+func (s *TableDescription) SetDeletionProtectionEnabled(v bool) *TableDescription {
+	s.DeletionProtectionEnabled = &v
 	return s
 }
 
@@ -23870,7 +24241,7 @@ type TransactWriteItemsInput struct {
 	//
 	// Although multiple identical calls using the same client request token produce
 	// the same result on the server (no side effects), the responses to the calls
-	// might not be the same. If the ReturnConsumedCapacity> parameter is set, then
+	// might not be the same. If the ReturnConsumedCapacity parameter is set, then
 	// the initial TransactWriteItems call returns the amount of write capacity
 	// units consumed in making the changes. Subsequent TransactWriteItems calls
 	// with the same client token return the number of read capacity units consumed
@@ -24103,7 +24474,7 @@ func (s *TransactWriteItemsOutput) SetItemCollectionMetrics(v map[string][]*Item
 //     as DynamoDB is automatically scaling the table. Throughput exceeds the
 //     current capacity for one or more global secondary indexes. DynamoDB is
 //     automatically scaling your index so please try again shortly. This message
-//     is returned when when writes get throttled on an On-Demand GSI as DynamoDB
+//     is returned when writes get throttled on an On-Demand GSI as DynamoDB
 //     is automatically scaling the GSI.
 //
 //   - Validation Error: Code: ValidationError Messages: One or more parameter
@@ -24248,6 +24619,47 @@ func (s *TransactionConflictException) RequestID() string {
 }
 
 // The transaction with the given request token is already in progress.
+//
+// # Recommended Settings
+//
+// This is a general recommendation for handling the TransactionInProgressException.
+// These settings help ensure that the client retries will trigger completion
+// of the ongoing TransactWriteItems request.
+//
+//   - Set clientExecutionTimeout to a value that allows at least one retry
+//     to be processed after 5 seconds have elapsed since the first attempt for
+//     the TransactWriteItems operation.
+//
+//   - Set socketTimeout to a value a little lower than the requestTimeout
+//     setting.
+//
+//   - requestTimeout should be set based on the time taken for the individual
+//     retries of a single HTTP request for your use case, but setting it to
+//     1 second or higher should work well to reduce chances of retries and TransactionInProgressException
+//     errors.
+//
+//   - Use exponential backoff when retrying and tune backoff if needed.
+//
+// Assuming default retry policy (https://github.com/aws/aws-sdk-java/blob/fd409dee8ae23fb8953e0bb4dbde65536a7e0514/aws-java-sdk-core/src/main/java/com/amazonaws/retry/PredefinedRetryPolicies.java#L97),
+// example timeout settings based on the guidelines above are as follows:
+//
+// Example timeline:
+//
+//   - 0-1000 first attempt
+//
+//   - 1000-1500 first sleep/delay (default retry policy uses 500 ms as base
+//     delay for 4xx errors)
+//
+//   - 1500-2500 second attempt
+//
+//   - 2500-3500 second sleep/delay (500 * 2, exponential backoff)
+//
+//   - 3500-4500 third attempt
+//
+//   - 4500-6500 third sleep/delay (500 * 2^2)
+//
+//   - 6500-7500 fourth attempt (this can trigger inline recovery since 5 seconds
+//     have elapsed since the first attempt reached TC)
 type TransactionInProgressException struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -25224,7 +25636,8 @@ type UpdateItemInput struct {
 	ReturnItemCollectionMetrics *string `type:"string" enum:"ReturnItemCollectionMetrics"`
 
 	// Use ReturnValues if you want to get the item attributes as they appear before
-	// or after they are updated. For UpdateItem, the valid values are:
+	// or after they are successfully updated. For UpdateItem, the valid values
+	// are:
 	//
 	//    * NONE - If ReturnValues is not specified, or if its value is NONE, then
 	//    nothing is returned. (This setting is the default for ReturnValues.)
@@ -25247,6 +25660,14 @@ type UpdateItemInput struct {
 	//
 	// The values returned are strongly consistent.
 	ReturnValues *string `type:"string" enum:"ReturnValue"`
+
+	// An optional parameter that returns the item attributes for an UpdateItem
+	// operation that failed a condition check.
+	//
+	// There is no additional cost associated with requesting a return value aside
+	// from the small network and processing overhead of receiving a larger response.
+	// No read capacity units are consumed.
+	ReturnValuesOnConditionCheckFailure *string `type:"string" enum:"ReturnValuesOnConditionCheckFailure"`
 
 	// The name of the table containing the item to update.
 	//
@@ -25410,6 +25831,12 @@ func (s *UpdateItemInput) SetReturnValues(v string) *UpdateItemInput {
 	return s
 }
 
+// SetReturnValuesOnConditionCheckFailure sets the ReturnValuesOnConditionCheckFailure field's value.
+func (s *UpdateItemInput) SetReturnValuesOnConditionCheckFailure(v string) *UpdateItemInput {
+	s.ReturnValuesOnConditionCheckFailure = &v
+	return s
+}
+
 // SetTableName sets the TableName field's value.
 func (s *UpdateItemInput) SetTableName(v string) *UpdateItemInput {
 	s.TableName = &v
@@ -25429,15 +25856,16 @@ type UpdateItemOutput struct {
 	// A map of attribute values as they appear before or after the UpdateItem operation,
 	// as determined by the ReturnValues parameter.
 	//
-	// The Attributes map is only present if ReturnValues was specified as something
-	// other than NONE in the request. Each element represents one attribute.
+	// The Attributes map is only present if the update was successful and ReturnValues
+	// was specified as something other than NONE in the request. Each element represents
+	// one attribute.
 	Attributes map[string]*AttributeValue `type:"map"`
 
 	// The capacity units consumed by the UpdateItem operation. The data returned
 	// includes the total provisioned throughput consumed, along with statistics
 	// for the table and any indexes involved in the operation. ConsumedCapacity
 	// is only returned if the ReturnConsumedCapacity parameter was specified. For
-	// more information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html)
+	// more information, see Provisioned Throughput (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html#ItemSizeCalculations.Reads)
 	// in the Amazon DynamoDB Developer Guide.
 	ConsumedCapacity *ConsumedCapacity `type:"structure"`
 
@@ -25626,6 +26054,10 @@ type UpdateTableInput struct {
 	//    workloads. PAY_PER_REQUEST sets the billing mode to On-Demand Mode (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html#HowItWorks.OnDemand).
 	BillingMode *string `type:"string" enum:"BillingMode"`
 
+	// Indicates whether deletion protection is to be enabled (true) or disabled
+	// (false) on the table.
+	DeletionProtectionEnabled *bool `type:"boolean"`
+
 	// An array of one or more global secondary indexes for the table. For each
 	// index in the array, you can request one action:
 	//
@@ -25648,7 +26080,7 @@ type UpdateTableInput struct {
 
 	// A list of replica update actions (create, delete, or update) for the table.
 	//
-	// This property only applies to Version 2019.11.21 (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
+	// This property only applies to Version 2019.11.21 (Current) (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html)
 	// of global tables.
 	ReplicaUpdates []*ReplicationGroupUpdate `min:"1" type:"list"`
 
@@ -25758,6 +26190,12 @@ func (s *UpdateTableInput) SetAttributeDefinitions(v []*AttributeDefinition) *Up
 // SetBillingMode sets the BillingMode field's value.
 func (s *UpdateTableInput) SetBillingMode(v string) *UpdateTableInput {
 	s.BillingMode = &v
+	return s
+}
+
+// SetDeletionProtectionEnabled sets the DeletionProtectionEnabled field's value.
+func (s *UpdateTableInput) SetDeletionProtectionEnabled(v bool) *UpdateTableInput {
+	s.DeletionProtectionEnabled = &v
 	return s
 }
 

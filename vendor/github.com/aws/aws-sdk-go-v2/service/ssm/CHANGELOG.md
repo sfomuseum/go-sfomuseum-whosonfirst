@@ -1,3 +1,81 @@
+# v1.36.6 (2023-06-15)
+
+* No change notes available for this release.
+
+# v1.36.5 (2023-06-13)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.36.4 (2023-05-04)
+
+* No change notes available for this release.
+
+# v1.36.3 (2023-04-24)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.36.2 (2023-04-10)
+
+* No change notes available for this release.
+
+# v1.36.1 (2023-04-07)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.36.0 (2023-03-22)
+
+* **Feature**: This Patch Manager release supports creating, updating, and deleting Patch Baselines for AmazonLinux2023, AlmaLinux.
+
+# v1.35.7 (2023-03-21)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.35.6 (2023-03-10)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.35.5 (2023-02-22)
+
+* **Bug Fix**: Prevent nil pointer dereference when retrieving error codes.
+* **Documentation**: Document only update for Feb 2023
+
+# v1.35.4 (2023-02-20)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.35.3 (2023-02-15)
+
+* **Announcement**: When receiving an error response in restJson-based services, an incorrect error type may have been returned based on the content of the response. This has been fixed via PR #2012 tracked in issue #1910.
+* **Bug Fix**: Correct error type parsing for restJson services.
+
+# v1.35.2 (2023-02-03)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.35.1 (2023-01-23)
+
+* No change notes available for this release.
+
+# v1.35.0 (2023-01-05)
+
+* **Feature**: Add `ErrorCodeOverride` field to all error structs (aws/smithy-go#401).
+
+# v1.34.0 (2023-01-04)
+
+* **Feature**: Adding support for QuickSetup Document Type in Systems Manager
+
+# v1.33.4 (2022-12-21)
+
+* **Documentation**: Doc-only updates for December 2022.
+
+# v1.33.3 (2022-12-15)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.2 (2022-12-02)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
 # v1.33.1 (2022-11-22)
 
 * No change notes available for this release.
