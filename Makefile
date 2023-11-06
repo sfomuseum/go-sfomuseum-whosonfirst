@@ -11,8 +11,8 @@ lambda:
 	@make lambda-import
 
 lambda-import:
-	if test -f main; then rm -f main; fi
+	if test -f bootstrap; then rm -f bootstrap; fi
 	if test -f import-feature.zip; then rm -f import-feature.zip; fi
-	GOOS=linux go build -mod $(GOMOD) -ldflags="-s -w"  -o main cmd/import-feature/main.go
-	zip import-feature.zip main
-	rm -f main
+	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="-s -w" -tags lambda.norpc -o bootstrap cmd/import-feature/main.go
+	zip import-feature.zip bootstrap
+	rm -f bootstrap

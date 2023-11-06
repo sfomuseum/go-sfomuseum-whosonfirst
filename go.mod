@@ -1,6 +1,6 @@
 module github.com/sfomuseum/go-sfomuseum-whosonfirst
 
-go 1.18
+go 1.21
 
 require (
 	github.com/aaronland/go-aws-lambda v0.0.7
@@ -10,7 +10,7 @@ require (
 	github.com/paulmach/orb v0.10.0
 	github.com/sfomuseum/go-edtf v1.1.1
 	github.com/sfomuseum/go-flags v0.10.0
-	github.com/sfomuseum/go-sfomuseum-writer/v3 v3.0.1
+	github.com/sfomuseum/go-sfomuseum-writer/v3 v3.0.2
 	github.com/tidwall/gjson v1.17.0
 	github.com/tidwall/pretty v1.2.1
 	github.com/whosonfirst/go-ioutil v1.0.2
@@ -24,7 +24,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.3.4
 	github.com/whosonfirst/go-whosonfirst-reader v1.0.1
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0
-	github.com/whosonfirst/go-writer-github/v3 v3.0.3
+	github.com/whosonfirst/go-writer-github/v3 v3.0.4
 	github.com/whosonfirst/go-writer/v3 v3.1.0
 	gocloud.dev v0.34.0
 )
@@ -73,7 +73,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.12 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.8 // indirect
-	github.com/sfomuseum/runtimevar v1.0.5 // indirect
+	github.com/sfomuseum/runtimevar v1.1.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/whosonfirst/go-whosonfirst-crawl v0.2.2 // indirect
@@ -88,15 +88,15 @@ require (
 	go.mongodb.org/mongo-driver v1.11.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/ratelimit v0.3.0 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/net v0.13.0 // indirect
-	golang.org/x/oauth2 v0.10.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/oauth2 v0.13.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.134.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230731193218-e0aa005b6bdf // indirect
-	google.golang.org/grpc v1.57.0 // indirect
+	google.golang.org/grpc v1.57.1 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
