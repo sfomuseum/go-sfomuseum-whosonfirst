@@ -8303,6 +8303,11 @@ func awsAwsjson11_serializeDocumentCreateAssociationBatchRequestEntry(v *types.C
 		ok.String(*v.DocumentVersion)
 	}
 
+	if v.Duration != nil {
+		ok := object.Key("Duration")
+		ok.Integer(*v.Duration)
+	}
+
 	if v.InstanceId != nil {
 		ok := object.Key("InstanceId")
 		ok.String(*v.InstanceId)
@@ -10827,6 +10832,11 @@ func awsAwsjson11_serializeOpDocumentCreateAssociationInput(v *CreateAssociation
 		ok.String(*v.DocumentVersion)
 	}
 
+	if v.Duration != nil {
+		ok := object.Key("Duration")
+		ok.Integer(*v.Duration)
+	}
+
 	if v.InstanceId != nil {
 		ok := object.Key("InstanceId")
 		ok.String(*v.InstanceId)
@@ -12284,6 +12294,11 @@ func awsAwsjson11_serializeOpDocumentDescribeParametersInput(v *DescribeParamete
 		if err := awsAwsjson11_serializeDocumentParameterStringFilterList(v.ParameterFilters, ok); err != nil {
 			return err
 		}
+	}
+
+	if v.Shared != nil {
+		ok := object.Key("Shared")
+		ok.Boolean(*v.Shared)
 	}
 
 	return nil
@@ -14258,6 +14273,11 @@ func awsAwsjson11_serializeOpDocumentUpdateAssociationInput(v *UpdateAssociation
 	if v.DocumentVersion != nil {
 		ok := object.Key("DocumentVersion")
 		ok.String(*v.DocumentVersion)
+	}
+
+	if v.Duration != nil {
+		ok := object.Key("Duration")
+		ok.Integer(*v.Duration)
 	}
 
 	if v.MaxConcurrency != nil {
