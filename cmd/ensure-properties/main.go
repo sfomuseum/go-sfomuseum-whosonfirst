@@ -5,15 +5,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
+	"log"
+	"os"
+
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
-	"io"
-	"log"
-	"os"
 )
 
 func main() {

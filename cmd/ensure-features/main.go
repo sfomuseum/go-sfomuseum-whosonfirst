@@ -9,6 +9,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
+	"log"
+	"net/url"
+	"sync"
+
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/tidwall/gjson"
@@ -17,10 +22,6 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
-	"io"
-	"log"
-	"net/url"
-	"sync"
 )
 
 func main() {

@@ -3,13 +3,14 @@ package update
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/paulmach/orb/geojson"
 	"github.com/sfomuseum/go-edtf"
 	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v3"
 	"github.com/whosonfirst/go-reader"
 	wof_reader "github.com/whosonfirst/go-whosonfirst-reader"
 	"github.com/whosonfirst/go-writer/v3"
-	"strings"
 )
 
 // Replace (or superseded) a new Who's On First record and write it to 'wr'. The signature for this method is a bit of a mess right now

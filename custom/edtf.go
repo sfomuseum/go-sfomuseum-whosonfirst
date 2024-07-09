@@ -2,9 +2,10 @@ package custom
 
 import (
 	"context"
+	"strings"
+
 	"github.com/sfomuseum/go-edtf"
 	"github.com/tidwall/gjson"
-	"strings"
 )
 
 // ApplyEDTFFixes applies EDTF 2019 updates to 'props_maps' (derived from 'body') if necessary.

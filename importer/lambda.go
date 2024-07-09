@@ -3,8 +3,9 @@ package importer
 import (
 	"context"
 	"fmt"
-	"github.com/aaronland/go-aws-lambda"
 	"net/url"
+
+	"github.com/aaronland/go-aws-lambda"
 )
 
 const LAMBDA_SCHEME string = "lambda"
@@ -42,7 +43,7 @@ func NewLambdaImporter(ctx context.Context, uri string) (Importer, error) {
 	if func_type == "" {
 		func_type = "Event"
 	}
-	
+
 	dsn := fmt.Sprintf("region=%s credentials=%s", region, credentials)
 
 	lambda_func, err := lambda.NewLambdaFunctionWithDSN(dsn, func_name, func_type)
@@ -59,13 +60,13 @@ func NewLambdaImporter(ctx context.Context, uri string) (Importer, error) {
 }
 
 func (i *LambdaImporter) ImportIDs(ctx context.Context, ids ...int64) error {
-	
+
 	import_ev := ImportEvent{
 		Ids: ids,
 	}
 
 	_, err := i.lambda_func.Invoke(ctx, import_ev)
-	
+
 	if err != nil {
 		return fmt.Errorf("Failed to invoke Lambda function, %w", err)
 	}

@@ -10,7 +10,7 @@ func TestNullImporter(t *testing.T) {
 	ctx := context.Background()
 
 	importer_uri := "null://"
-	
+
 	i, err := NewImporter(ctx, importer_uri)
 
 	if err != nil {

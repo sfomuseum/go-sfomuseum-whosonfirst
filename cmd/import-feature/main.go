@@ -15,6 +15,12 @@ import (
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/flagset"
@@ -28,11 +34,6 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	gh_writer "github.com/whosonfirst/go-writer-github/v3"
 	"github.com/whosonfirst/go-writer/v3"
-	"log"
-	"net/url"
-	"os"
-	"strings"
-	"time"
 )
 
 func main() {

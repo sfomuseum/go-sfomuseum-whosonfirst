@@ -573,10 +573,10 @@ github.com/sfomuseum/go-flags v0.8.2/go.mod h1:ML3DTNbF9xnjExSdS/9FtVLjIUhRU5gm/
 github.com/sfomuseum/go-flags v0.8.3/go.mod h1:VXOnnX1/yxQpX2yiwHaBV6aCmhtszQOL5bL1/nNo3co=
 github.com/sfomuseum/go-flags v0.10.0 h1:1OC1ACxpWMsl3XQ9OeNVMQj7Zi2CzufP3Rym3mPI8HU=
 github.com/sfomuseum/go-flags v0.10.0/go.mod h1:VXOnnX1/yxQpX2yiwHaBV6aCmhtszQOL5bL1/nNo3co=
-github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.8 h1:6xxStvwAyZdjOYcFw99Ae/gERRBByK3vtT9IORJbo1k=
-github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.8/go.mod h1:nv3Sf2bFGT1G/tr34EfN1tDQ5pZQJ2hMaDxqUeI2EHE=
-github.com/sfomuseum/go-sfomuseum-writer/v3 v3.0.2 h1:0dD/oGLQ4gRQFeCSlRu5JsjDDWfb+EW3i3dmUUfECXM=
-github.com/sfomuseum/go-sfomuseum-writer/v3 v3.0.2/go.mod h1:z0bP+jxt9MURE3XhiStWklOp08/OyUwZtkJiyu3xf5w=
+github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.11 h1:+mQ5d40Eu1lsej6ISacxG/9Y95J9ioNSm3nlxaF2u2Y=
+github.com/sfomuseum/go-sfomuseum-export/v2 v2.3.11/go.mod h1:OQICRmfXUa9QKU0mqWu800kleXLr0cpdal9Q36GSpHA=
+github.com/sfomuseum/go-sfomuseum-writer/v3 v3.0.3 h1:nAOPGW9RyAaSMIXJKg6NfgER3NAhrHm49qkSIhSfitQ=
+github.com/sfomuseum/go-sfomuseum-writer/v3 v3.0.3/go.mod h1:0iNpe+iN1PY5l53grkTp4VyWKPGN7H+h8ucbD8+cjxg=
 github.com/sfomuseum/go-timings v0.0.1/go.mod h1:5J83BoWlLLoCh2j4mrhKx2Oz7f4kePbQLuYAKII3BFQ=
 github.com/sfomuseum/runtimevar v1.1.2 h1:YcgxdB39gEqKN1H3wS9E773JsPWYKBVDdk/HF08BLFc=
 github.com/sfomuseum/runtimevar v1.1.2/go.mod h1:nqn9Snni6oTaAwfoBQR32oUzWUDOuL7dNMsEjNvFjyM=
@@ -648,8 +648,8 @@ github.com/whosonfirst/go-whosonfirst-cli v0.1.0/go.mod h1:Edy+amD+fMq1QS1yxB3u8
 github.com/whosonfirst/go-whosonfirst-crawl v0.2.1/go.mod h1:MTD1TCgAkXlAtysPU98ylrz9Y5+ZCfRrsrBnRyiH/t8=
 github.com/whosonfirst/go-whosonfirst-crawl v0.2.2 h1:7nwpNV/BFoPR0R7KMMy1iiYAer7wlHJBUOiL+NLzIFs=
 github.com/whosonfirst/go-whosonfirst-crawl v0.2.2/go.mod h1:2GZkaK9jaOisWRnBQGWzmb7H55TUFl9y9F30lrk2hwk=
-github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.0 h1:4EXeyMevpM9Dv8fiLCFuZYFa93JqZse4oFd6Ok/ezjc=
-github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.0/go.mod h1:EHkzZ8dH6RpWvmpvJD1Q9M712J7j0Crc1Z8TxTUAxck=
+github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.1 h1:338iHMTuUb0GXteXE3YKnBYirCJxN6f2cZ4D/y8XiwE=
+github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.1/go.mod h1:EHkzZ8dH6RpWvmpvJD1Q9M712J7j0Crc1Z8TxTUAxck=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.23/go.mod h1:3cvRigFFG2a99M64lZzfy5amHacWu8Os5fXZdGjPnLM=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.27 h1:8RoiadvQEo8RFq8HFezq/Mwm/7UXR+dNJpE9oP8kvfQ=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.27/go.mod h1:vAtQysyMODE/ynMxSrHJ2eCBJRNFj9xUszrURnOy9Xc=
@@ -688,8 +688,8 @@ github.com/whosonfirst/go-whosonfirst-uri v1.1.0/go.mod h1:8eaDVcc4v+HHHEDaRbApd
 github.com/whosonfirst/go-whosonfirst-uri v1.2.0/go.mod h1:CuVygTCUpMG945MMvqHyqxvc/L5YkDaMrrVpRFr7ZxY=
 github.com/whosonfirst/go-whosonfirst-uri v1.3.0 h1:LYOVLqP9rWQxauYVkdw65j5LZxEi8OK0GHh/qCEpX4g=
 github.com/whosonfirst/go-whosonfirst-uri v1.3.0/go.mod h1:CuVygTCUpMG945MMvqHyqxvc/L5YkDaMrrVpRFr7ZxY=
-github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.0 h1:0MKJgExBAfjZNbMj13V5o8Y6M4UWwvHrnRllHQ91HX0=
-github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.0/go.mod h1:YJ3yxrk+6rYHNwIcYQfpVJR7CNR2faIy/Vt3byCsfdw=
+github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.3 h1:Y35+yvu3QcjXDLP76AHkz8C54v6iZNH8eptP13RJ5xE=
+github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.3/go.mod h1:Q747iV7+MGPr/wb5wo7PP3tlt8dU9JOqmknZitKoTxc=
 github.com/whosonfirst/go-writer v0.8.0 h1:Tgibn65KrLqfC5YSIxZfXNsNFdk8bvP3/LpqbERU0FY=
 github.com/whosonfirst/go-writer v0.8.0/go.mod h1:Qj0rZgdoFagSJ1xwhm60KyTgMU4DK5C6q5n8zKpgnj8=
 github.com/whosonfirst/go-writer-github/v3 v3.0.4 h1:bNULu5OIaDiwA/18ej9hI1v2bng9KsTJ3Nc7t8/6zX8=

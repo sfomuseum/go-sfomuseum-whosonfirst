@@ -3,6 +3,7 @@ package whosonfirst
 import (
 	"context"
 	"fmt"
+
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-whosonfirst-fetch"
 )

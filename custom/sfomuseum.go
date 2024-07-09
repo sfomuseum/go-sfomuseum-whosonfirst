@@ -3,12 +3,12 @@ package custom
 import (
 	"context"
 	"fmt"
+	"io"
+
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
-	"io"
-	_ "strings"
 )
 
 // SFOMuseumPropertiesOptions is a struct containing configuration option for updating Who's On First records with SFO Museum specific properties.
