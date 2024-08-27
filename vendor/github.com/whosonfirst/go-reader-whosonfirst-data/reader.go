@@ -1,21 +1,20 @@
 package reader
 
 import (
-	_ "github.com/whosonfirst/go-reader-github"
-	_ "github.com/whosonfirst/go-reader-http"
-)
-
-import (
 	"context"
 	"fmt"
-	wof_reader "github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-findingaid/v2/resolver"
-	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
-	_ "log"
+	"log/slog"
 	"net/url"
 	"sync"
 	"time"
+
+	_ "github.com/whosonfirst/go-reader-github"
+	_ "github.com/whosonfirst/go-reader-http"
+
+	wof_reader "github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-whosonfirst-findingaid/v2/resolver"
+	"github.com/whosonfirst/go-whosonfirst-uri"
 )
 
 type WhosOnFirstDataReader struct {
@@ -25,6 +24,7 @@ type WhosOnFirstDataReader struct {
 	organization string
 	repo         string
 	branch       string
+	prefix       string
 	repos        *sync.Map
 	readers      *sync.Map
 	resolver     resolver.Resolver
@@ -54,6 +54,7 @@ func NewWhosOnFirstDataReader(ctx context.Context, uri string) (wof_reader.Reade
 	org := q.Get("organization")
 	repo := q.Get("repo")
 	branch := q.Get("branch")
+	prefix := q.Get("prefix")
 
 	if provider == "" {
 		provider = "github"
@@ -61,6 +62,10 @@ func NewWhosOnFirstDataReader(ctx context.Context, uri string) (wof_reader.Reade
 
 	if org == "" {
 		org = "whosonfirst-data"
+	}
+
+	if prefix == "" {
+		prefix = "data"
 	}
 
 	// This is a specific whosonfirst-data -ism
@@ -126,6 +131,7 @@ func NewWhosOnFirstDataReader(ctx context.Context, uri string) (wof_reader.Reade
 		repo:         repo,
 		branch:       branch,
 		repos:        repos,
+		prefix:       prefix,
 		readers:      readers,
 		resolver:     rslvr,
 	}
@@ -150,6 +156,7 @@ func (r *WhosOnFirstDataReader) Read(ctx context.Context, uri string) (io.ReadSe
 		return nil, err
 	}
 
+	slog.Debug("Read URI", "reader", fmt.Sprintf("%T", gh_r), "uri", uri)
 	return gh_r.Read(ctx, uri)
 }
 
@@ -190,6 +197,9 @@ func (r *WhosOnFirstDataReader) getReader(ctx context.Context, uri string) (wof_
 
 func (r *WhosOnFirstDataReader) getReaderWithRepo(ctx context.Context, repo string) (wof_reader.Reader, error) {
 
+	logger := slog.Default()
+	logger = logger.With("repo", repo)
+
 	v, ok := r.readers.Load(repo)
 
 	if ok {
@@ -203,6 +213,10 @@ func (r *WhosOnFirstDataReader) getReaderWithRepo(ctx context.Context, repo stri
 		gh_q.Set("branch", r.branch)
 	}
 
+	if r.prefix != "" {
+		gh_q.Set("prefix", r.prefix)
+	}
+
 	gh_uri := url.URL{}
 	gh_uri.Scheme = r.provider
 	gh_uri.Host = r.organization
@@ -210,6 +224,8 @@ func (r *WhosOnFirstDataReader) getReaderWithRepo(ctx context.Context, repo stri
 	gh_uri.RawQuery = gh_q.Encode()
 
 	reader_uri := gh_uri.String()
+
+	logger.Debug("Create new reader", "reader_uri", reader_uri)
 
 	gh_r, err := wof_reader.NewReader(ctx, reader_uri)
 
@@ -226,22 +242,28 @@ func (r *WhosOnFirstDataReader) getReaderWithRepo(ctx context.Context, repo stri
 
 func (r *WhosOnFirstDataReader) getRepo(ctx context.Context, path string) (string, error) {
 
+	logger := slog.Default()
+	logger = logger.With("path", path)
+
 	v, ok := r.repos.Load(path)
 
 	if ok {
 		repo_name := v.(string)
+		logger.Debug("Return repo from cache", "repo", repo_name)
 		return repo_name, nil
 	}
 
 	id, _, err := uri.ParseURI(path)
 
 	if err != nil {
+		logger.Debug("Failed to parse path", "error", err)
 		return "", fmt.Errorf("Failed to parse %s, %w", path, err)
 	}
 
 	repo_name, err := r.resolver.GetRepo(ctx, id)
 
 	if err != nil {
+		logger.Debug("Failed to resolve ID", "id", id, "error", err)
 		return "", fmt.Errorf("Failed to resolve repo name for '%s', %w", path, err)
 	}
 
@@ -249,5 +271,6 @@ func (r *WhosOnFirstDataReader) getRepo(ctx context.Context, path string) (strin
 		r.repos.Store(path, repo_name)
 	}()
 
+	logger.Debug("Resolve repo", "repo", repo_name)
 	return repo_name, nil
 }

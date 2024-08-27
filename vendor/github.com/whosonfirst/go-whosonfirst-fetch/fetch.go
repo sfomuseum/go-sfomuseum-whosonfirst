@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-feature/properties"
-	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/go-writer"
 	"io"
 	"log"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/whosonfirst/go-ioutil"
+	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
+	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/whosonfirst/go-writer/v3"	
 )
 
 // Options is a struct containing configuration options for fetching Who's On First record

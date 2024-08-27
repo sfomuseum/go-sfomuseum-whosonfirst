@@ -44,9 +44,9 @@ func NewLambdaImporter(ctx context.Context, uri string) (Importer, error) {
 		func_type = "Event"
 	}
 
-	dsn := fmt.Sprintf("region=%s credentials=%s", region, credentials)
+	lambda_uri := fmt.Sprintf("aws://%s?region=%s&credentials=%s&type=%s", func_name, region, credentials, func_type)
 
-	lambda_func, err := lambda.NewLambdaFunctionWithDSN(dsn, func_name, func_type)
+	lambda_func, err := lambda.NewLambdaFunction(ctx, lambda_uri)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new lambda function, %w", err)
