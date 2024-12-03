@@ -32,14 +32,11 @@ import (
 //
 // [Amazon DocumentDB]
 //
-// The following error handling options are available only for stream sources
-// (DynamoDB and Kinesis):
+// The following error handling options are available only for DynamoDB and
+// Kinesis event sources:
 //
 //   - BisectBatchOnFunctionError – If the function returns an error, split the
 //     batch in two and retry.
-//
-//   - DestinationConfig – Send discarded records to an Amazon SQS queue or Amazon
-//     SNS topic.
 //
 //   - MaximumRecordAgeInSeconds – Discard records older than the specified age.
 //     The default value is infinite (-1). When set to infinite (-1), failed records
@@ -51,6 +48,12 @@ import (
 //
 //   - ParallelizationFactor – Process multiple batches from each shard
 //     concurrently.
+//
+// For stream sources (DynamoDB, Kinesis, Amazon MSK, and self-managed Apache
+// Kafka), the following option is also available:
+//
+//   - DestinationConfig – Send discarded records to an Amazon SQS queue, Amazon
+//     SNS topic, or Amazon S3 bucket.
 //
 // For information about which configuration parameters apply to each event
 // source, see the following topics.
@@ -183,6 +186,14 @@ type CreateEventSourceMappingInput struct {
 	// enums applied to the event source mapping.
 	FunctionResponseTypes []types.FunctionResponseType
 
+	//  The ARN of the Key Management Service (KMS) customer managed key that Lambda
+	// uses to encrypt your function's [filter criteria]. By default, Lambda does not encrypt your
+	// filter criteria object. Specify this property to encrypt data using your own
+	// customer managed key.
+	//
+	// [filter criteria]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-basics
+	KMSKeyArn *string
+
 	// The maximum amount of time, in seconds, that Lambda spends gathering records
 	// before invoking the function. You can configure MaximumBatchingWindowInSeconds
 	// to any value from 0 seconds to 300 seconds in increments of seconds.
@@ -209,9 +220,20 @@ type CreateEventSourceMappingInput struct {
 	// failed records are retried until the record expires.
 	MaximumRetryAttempts *int32
 
+	// The metrics configuration for your event source. For more information, see [Event source mapping metrics].
+	//
+	// [Event source mapping metrics]: https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+	MetricsConfig *types.EventSourceMappingMetricsConfig
+
 	// (Kinesis and DynamoDB Streams only) The number of batches to process from each
 	// shard concurrently.
 	ParallelizationFactor *int32
+
+	// (Amazon MSK and self-managed Apache Kafka only) The Provisioned Mode
+	// configuration for the event source. For more information, see [Provisioned Mode].
+	//
+	// [Provisioned Mode]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode
+	ProvisionedPollerConfig *types.ProvisionedPollerConfig
 
 	//  (MQ) The name of the Amazon MQ broker destination queue to consume.
 	Queues []string
@@ -241,6 +263,9 @@ type CreateEventSourceMappingInput struct {
 	// With StartingPosition set to AT_TIMESTAMP , the time from which to start
 	// reading. StartingPositionTimestamp cannot be in the future.
 	StartingPositionTimestamp *time.Time
+
+	// A list of tags to apply to the event source mapping.
+	Tags map[string]string
 
 	// The name of the Kafka topic.
 	Topics []string
@@ -288,11 +313,23 @@ type CreateEventSourceMappingOutput struct {
 	// The Amazon Resource Name (ARN) of the event source.
 	EventSourceArn *string
 
+	// The Amazon Resource Name (ARN) of the event source mapping.
+	EventSourceMappingArn *string
+
 	// An object that defines the filter criteria that determine whether Lambda should
 	// process an event. For more information, see [Lambda event filtering].
 	//
+	// If filter criteria is encrypted, this field shows up as null in the response of
+	// ListEventSourceMapping API calls. You can view this field in plaintext in the
+	// response of GetEventSourceMapping and DeleteEventSourceMapping calls if you have
+	// kms:Decrypt permissions for the correct KMS key.
+	//
 	// [Lambda event filtering]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html
 	FilterCriteria *types.FilterCriteria
+
+	// An object that contains details about an error related to filter criteria
+	// encryption.
+	FilterCriteriaError *types.FilterCriteriaError
 
 	// The ARN of the Lambda function.
 	FunctionArn *string
@@ -300,6 +337,12 @@ type CreateEventSourceMappingOutput struct {
 	// (Kinesis, DynamoDB Streams, and Amazon SQS) A list of current response type
 	// enums applied to the event source mapping.
 	FunctionResponseTypes []types.FunctionResponseType
+
+	//  The ARN of the Key Management Service (KMS) customer managed key that Lambda
+	// uses to encrypt your function's [filter criteria].
+	//
+	// [filter criteria]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-basics
+	KMSKeyArn *string
 
 	// The date that the event source mapping was last updated or that its state
 	// changed.
@@ -339,9 +382,20 @@ type CreateEventSourceMappingOutput struct {
 	// until the record expires in the event source.
 	MaximumRetryAttempts *int32
 
+	// The metrics configuration for your event source. For more information, see [Event source mapping metrics].
+	//
+	// [Event source mapping metrics]: https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+	MetricsConfig *types.EventSourceMappingMetricsConfig
+
 	// (Kinesis and DynamoDB Streams only) The number of batches to process
 	// concurrently from each shard. The default value is 1.
 	ParallelizationFactor *int32
+
+	// (Amazon MSK and self-managed Apache Kafka only) The Provisioned Mode
+	// configuration for the event source. For more information, see [Provisioned Mode].
+	//
+	// [Provisioned Mode]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode
+	ProvisionedPollerConfig *types.ProvisionedPollerConfig
 
 	//  (Amazon MQ) The name of the Amazon MQ broker destination queue to consume.
 	Queues []string
@@ -440,6 +494,9 @@ func (c *Client) addOperationCreateEventSourceMappingMiddlewares(stack *middlewa
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -477,6 +534,18 @@ func (c *Client) addOperationCreateEventSourceMappingMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

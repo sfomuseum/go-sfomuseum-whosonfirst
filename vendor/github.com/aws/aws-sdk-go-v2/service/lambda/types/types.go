@@ -349,11 +349,23 @@ type EventSourceMappingConfiguration struct {
 	// The Amazon Resource Name (ARN) of the event source.
 	EventSourceArn *string
 
+	// The Amazon Resource Name (ARN) of the event source mapping.
+	EventSourceMappingArn *string
+
 	// An object that defines the filter criteria that determine whether Lambda should
 	// process an event. For more information, see [Lambda event filtering].
 	//
+	// If filter criteria is encrypted, this field shows up as null in the response of
+	// ListEventSourceMapping API calls. You can view this field in plaintext in the
+	// response of GetEventSourceMapping and DeleteEventSourceMapping calls if you have
+	// kms:Decrypt permissions for the correct KMS key.
+	//
 	// [Lambda event filtering]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html
 	FilterCriteria *FilterCriteria
+
+	// An object that contains details about an error related to filter criteria
+	// encryption.
+	FilterCriteriaError *FilterCriteriaError
 
 	// The ARN of the Lambda function.
 	FunctionArn *string
@@ -361,6 +373,12 @@ type EventSourceMappingConfiguration struct {
 	// (Kinesis, DynamoDB Streams, and Amazon SQS) A list of current response type
 	// enums applied to the event source mapping.
 	FunctionResponseTypes []FunctionResponseType
+
+	//  The ARN of the Key Management Service (KMS) customer managed key that Lambda
+	// uses to encrypt your function's [filter criteria].
+	//
+	// [filter criteria]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-basics
+	KMSKeyArn *string
 
 	// The date that the event source mapping was last updated or that its state
 	// changed.
@@ -400,9 +418,20 @@ type EventSourceMappingConfiguration struct {
 	// until the record expires in the event source.
 	MaximumRetryAttempts *int32
 
+	// The metrics configuration for your event source. For more information, see [Event source mapping metrics].
+	//
+	// [Event source mapping metrics]: https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+	MetricsConfig *EventSourceMappingMetricsConfig
+
 	// (Kinesis and DynamoDB Streams only) The number of batches to process
 	// concurrently from each shard. The default value is 1.
 	ParallelizationFactor *int32
+
+	// (Amazon MSK and self-managed Apache Kafka only) The Provisioned Mode
+	// configuration for the event source. For more information, see [Provisioned Mode].
+	//
+	// [Provisioned Mode]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode
+	ProvisionedPollerConfig *ProvisionedPollerConfig
 
 	//  (Amazon MQ) The name of the Amazon MQ broker destination queue to consume.
 	Queues []string
@@ -455,6 +484,21 @@ type EventSourceMappingConfiguration struct {
 	noSmithyDocumentSerde
 }
 
+// The metrics configuration for your event source. Use this configuration object
+// to define which metrics you want your event source mapping to produce.
+type EventSourceMappingMetricsConfig struct {
+
+	//  The metrics you want your event source mapping to produce. Include EventCount
+	// to receive event source mapping metrics related to the number of events
+	// processed by your event source mapping. For more information about these
+	// metrics, see [Event source mapping metrics].
+	//
+	// [Event source mapping metrics]: https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+	Metrics []EventSourceMappingMetric
+
+	noSmithyDocumentSerde
+}
+
 // Details about the connection between a Lambda function and an [Amazon EFS file system].
 //
 // [Amazon EFS file system]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html
@@ -497,6 +541,19 @@ type FilterCriteria struct {
 	noSmithyDocumentSerde
 }
 
+// An object that contains details about an error related to filter criteria
+// encryption.
+type FilterCriteriaError struct {
+
+	// The KMS exception that resulted from filter criteria encryption or decryption.
+	ErrorCode *string
+
+	// The error message.
+	Message *string
+
+	noSmithyDocumentSerde
+}
+
 // The code for the Lambda function. You can either specify an object in Amazon
 // S3, upload a .zip file archive deployment package directly, or specify the URI
 // of a container image.
@@ -516,6 +573,13 @@ type FunctionCode struct {
 
 	// For versioned objects, the version of the deployment package object to use.
 	S3ObjectVersion *string
+
+	// The ARN of the Key Management Service (KMS) customer managed key that's used to
+	// encrypt your function's .zip deployment package. If you don't provide a customer
+	// managed key, Lambda uses an [Amazon Web Services owned key].
+	//
+	// [Amazon Web Services owned key]: https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk
+	SourceKMSKeyArn *string
 
 	// The base64-encoded contents of the deployment package. Amazon Web Services SDK
 	// and CLI clients handle the encoding for you.
@@ -538,6 +602,13 @@ type FunctionCodeLocation struct {
 
 	// The resolved URI for the image.
 	ResolvedImageUri *string
+
+	// The ARN of the Key Management Service (KMS) customer managed key that's used to
+	// encrypt your function's .zip deployment package. If you don't provide a customer
+	// managed key, Lambda uses an [Amazon Web Services owned key].
+	//
+	// [Amazon Web Services owned key]: https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk
+	SourceKMSKeyArn *string
 
 	noSmithyDocumentSerde
 }
@@ -590,12 +661,29 @@ type FunctionConfiguration struct {
 	// The function's image configuration values.
 	ImageConfigResponse *ImageConfigResponse
 
-	// The KMS key that's used to encrypt the function's [environment variables]. When [Lambda SnapStart] is activated, this
-	// key is also used to encrypt the function's snapshot. This key is returned only
-	// if you've configured a customer managed key.
+	// The ARN of the Key Management Service (KMS) customer managed key that's used to
+	// encrypt the following resources:
 	//
+	//   - The function's [environment variables].
+	//
+	//   - The function's [Lambda SnapStart]snapshots.
+	//
+	//   - When used with SourceKMSKeyArn , the unzipped version of the .zip deployment
+	//   package that's used for function invocations. For more information, see [Specifying a customer managed key for Lambda].
+	//
+	//   - The optimized version of the container image that's used for function
+	//   invocations. Note that this is not the same key that's used to protect your
+	//   container image in the Amazon Elastic Container Registry (Amazon ECR). For more
+	//   information, see [Function lifecycle].
+	//
+	// If you don't provide a customer managed key, Lambda uses an [Amazon Web Services owned key] or an [Amazon Web Services managed key].
+	//
+	// [Amazon Web Services owned key]: https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk
+	// [Specifying a customer managed key for Lambda]: https://docs.aws.amazon.com/lambda/latest/dg/encrypt-zip-package.html#enable-zip-custom-encryption
 	// [Lambda SnapStart]: https://docs.aws.amazon.com/lambda/latest/dg/snapstart-security.html
 	// [environment variables]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-encryption
+	// [Function lifecycle]: https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-lifecycle
+	// [Amazon Web Services managed key]: https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk
 	KMSKeyArn *string
 
 	// The date and time that the function was last updated, in [ISO-8601 format]
@@ -706,9 +794,14 @@ type FunctionEventInvokeConfig struct {
 	//
 	//   - Queue - The ARN of a standard SQS queue.
 	//
+	//   - Bucket - The ARN of an Amazon S3 bucket.
+	//
 	//   - Topic - The ARN of a standard SNS topic.
 	//
 	//   - Event Bus - The ARN of an Amazon EventBridge event bus.
+	//
+	// S3 buckets are supported only for on-failure destinations. To retain records of
+	// successful invocations, use another destination type.
 	DestinationConfig *DestinationConfig
 
 	// The Amazon Resource Name (ARN) of the function.
@@ -1036,18 +1129,17 @@ type OnFailure struct {
 
 	// The Amazon Resource Name (ARN) of the destination resource.
 	//
-	// To retain records of [asynchronous invocations], you can configure an Amazon SNS topic, Amazon SQS queue,
-	// Lambda function, or Amazon EventBridge event bus as the destination.
+	// To retain records of unsuccessful [asynchronous invocations], you can configure an Amazon SNS topic,
+	// Amazon SQS queue, Amazon S3 bucket, Lambda function, or Amazon EventBridge event
+	// bus as the destination.
 	//
-	// To retain records of failed invocations from [Kinesis and DynamoDB event sources], you can configure an Amazon SNS
-	// topic or Amazon SQS queue as the destination.
-	//
-	// To retain records of failed invocations from [self-managed Kafka] or [Amazon MSK], you can configure an Amazon
-	// SNS topic, Amazon SQS queue, or Amazon S3 bucket as the destination.
+	// To retain records of failed invocations from [Kinesis], [DynamoDB], [self-managed Kafka] or [Amazon MSK], you can configure an
+	// Amazon SNS topic, Amazon SQS queue, or Amazon S3 bucket as the destination.
 	//
 	// [Amazon MSK]: https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-onfailure-destination
-	// [Kinesis and DynamoDB event sources]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#event-source-mapping-destinations
+	// [Kinesis]: https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html
 	// [asynchronous invocations]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-async-destinations
+	// [DynamoDB]: https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html
 	// [self-managed Kafka]: https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html#services-smaa-onfailure-destination
 	Destination *string
 
@@ -1055,6 +1147,11 @@ type OnFailure struct {
 }
 
 // A destination for events that were processed successfully.
+//
+// To retain records of successful [asynchronous invocations], you can configure an Amazon SNS topic, Amazon
+// SQS queue, Lambda function, or Amazon EventBridge event bus as the destination.
+//
+// [asynchronous invocations]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-async-destinations
 type OnSuccess struct {
 
 	// The Amazon Resource Name (ARN) of the destination resource.
@@ -1092,6 +1189,22 @@ type ProvisionedConcurrencyConfigListItem struct {
 	// For failed allocations, the reason that provisioned concurrency could not be
 	// allocated.
 	StatusReason *string
+
+	noSmithyDocumentSerde
+}
+
+// The [Provisioned Mode] configuration for the event source. Use Provisioned Mode to customize the
+// minimum and maximum number of event pollers for your event source. An event
+// poller is a compute unit that provides approximately 5 MBps of throughput.
+//
+// [Provisioned Mode]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode
+type ProvisionedPollerConfig struct {
+
+	// The maximum number of event pollers this event source can scale up to.
+	MaximumPollers *int32
+
+	// The minimum number of event pollers this event source can scale down to.
+	MinimumPollers *int32
 
 	noSmithyDocumentSerde
 }
@@ -1233,6 +1346,22 @@ type SourceAccessConfiguration struct {
 	// The value for your chosen configuration in Type . For example: "URI":
 	// "arn:aws:secretsmanager:us-east-1:01234567890:secret:MyBrokerSecretName" .
 	URI *string
+
+	noSmithyDocumentSerde
+}
+
+// An object that contains details about an error related to retrieving tags.
+type TagsError struct {
+
+	// The error code.
+	//
+	// This member is required.
+	ErrorCode *string
+
+	// The error message.
+	//
+	// This member is required.
+	Message *string
 
 	noSmithyDocumentSerde
 }
