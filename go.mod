@@ -1,6 +1,6 @@
 module github.com/sfomuseum/go-sfomuseum-whosonfirst
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/aaronland/go-aws-lambda v0.1.2
@@ -18,7 +18,7 @@ require (
 	github.com/whosonfirst/go-reader-github v0.6.11
 	github.com/whosonfirst/go-reader-http v0.3.1
 	github.com/whosonfirst/go-reader-whosonfirst-data v1.4.2
-	github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.3
+	github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.4
 	github.com/whosonfirst/go-whosonfirst-feature v0.0.28
 	github.com/whosonfirst/go-whosonfirst-fetch v1.0.1
 	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.5.0
@@ -40,7 +40,7 @@ require (
 	github.com/aaronland/go-string v1.0.0 // indirect
 	github.com/aaronland/go-uid v0.4.0 // indirect
 	github.com/aaronland/go-uid-artisanal v0.0.4 // indirect
-	github.com/aaronland/go-uid-proxy v0.3.0 // indirect
+	github.com/aaronland/go-uid-proxy v0.3.1 // indirect
 	github.com/aaronland/go-uid-whosonfirst v0.0.5 // indirect
 	github.com/aaronland/gocloud-docstore v0.0.7 // indirect
 	github.com/aws/aws-sdk-go v1.55.5 // indirect
@@ -88,7 +88,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-findingaid/v2 v2.8.7 // indirect
 	github.com/whosonfirst/go-whosonfirst-flags v0.5.1 // indirect
 	github.com/whosonfirst/go-whosonfirst-format v0.4.1 // indirect
-	github.com/whosonfirst/go-whosonfirst-id v1.2.5 // indirect
+	github.com/whosonfirst/go-whosonfirst-id v1.2.6 // indirect
 	github.com/whosonfirst/go-whosonfirst-sources v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.3 // indirect
 	github.com/whosonfirst/walk v0.0.2 // indirect
