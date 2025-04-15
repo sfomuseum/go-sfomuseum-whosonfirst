@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
-	"github.com/whosonfirst/go-whosonfirst-fetch"
+	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 )
 
 type ImportFeatureOptions struct {

@@ -3,12 +3,6 @@
 package main
 
 import (
-	_ "github.com/whosonfirst/go-reader-github"
-	_ "github.com/whosonfirst/go-reader-http"
-	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
-)
-
-import (
 	"context"
 	"flag"
 	"fmt"
@@ -17,9 +11,13 @@ import (
 	"net/url"
 	"os"
 
+	_ "github.com/whosonfirst/go-reader-github"
+	_ "github.com/whosonfirst/go-reader-http"
+	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
+	
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-fetch"
+	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"

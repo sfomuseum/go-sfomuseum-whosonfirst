@@ -6,13 +6,6 @@
 package main
 
 import (
-	_ "github.com/whosonfirst/go-reader-http"
-	_ "gocloud.dev/runtimevar/awsparamstore"
-	_ "gocloud.dev/runtimevar/constantvar"
-	_ "gocloud.dev/runtimevar/filevar"
-)
-
-import (
 	"context"
 	"fmt"
 	"log"
@@ -21,6 +14,11 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/whosonfirst/go-reader-http"
+	_ "gocloud.dev/runtimevar/awsparamstore"
+	_ "gocloud.dev/runtimevar/constantvar"
+	_ "gocloud.dev/runtimevar/filevar"
+	
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/flagset"
@@ -30,7 +28,7 @@ import (
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/whosonfirst/go-reader"
 	gh_reader "github.com/whosonfirst/go-reader-github"
-	"github.com/whosonfirst/go-whosonfirst-fetch"
+	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	gh_writer "github.com/whosonfirst/go-writer-github/v3"
 	"github.com/whosonfirst/go-writer/v3"

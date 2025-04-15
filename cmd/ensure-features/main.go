@@ -1,11 +1,6 @@
 package main
 
 import (
-	_ "github.com/whosonfirst/go-reader-github"
-	_ "github.com/whosonfirst/go-reader-http"
-)
-
-import (
 	"context"
 	"flag"
 	"fmt"
@@ -14,11 +9,14 @@ import (
 	"net/url"
 	"sync"
 
+	_ "github.com/whosonfirst/go-reader-github"
+	_ "github.com/whosonfirst/go-reader-http"
+	
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-fetch"
+	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
