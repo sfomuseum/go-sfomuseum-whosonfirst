@@ -3,14 +3,13 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net/url"
 	"sync"
 
 	_ "github.com/whosonfirst/go-reader-github/v2"
-	
+
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/tidwall/gjson"
@@ -103,7 +102,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create new iterator, %v", err)
 	}
-	
+
 	for rec, err := range iter.Iterate(ctx, iterator_sources...) {
 
 		select {
@@ -118,21 +117,21 @@ func main() {
 		}
 
 		defer rec.Body.Close()
-		
+
 		_, uri_args, err := uri.ParseURI(rec.Path)
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse %s, %v", rec.Path, err)
+			log.Fatalf("Failed to parse %s, %v", rec.Path, err)
 		}
 
 		if uri_args.IsAlternate {
-			return nil
+			continue
 		}
 
 		body, err := io.ReadAll(rec.Body)
 
 		if err != nil {
-			return fmt.Errorf("Failed to read %s, %w", rec.Path, err)
+			log.Fatalf("Failed to read %s, %v", rec.Path, err)
 		}
 
 		done_ch := make(chan bool)

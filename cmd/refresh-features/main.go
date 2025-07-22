@@ -6,14 +6,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/url"
 	"os"
 
-	_ "github.com/whosonfirst/go-reader-github/v2"
 	_ "github.com/whosonfirst/go-reader-findingaid/v2"
-	
+	_ "github.com/whosonfirst/go-reader-github/v2"
+
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/whosonfirst/go-reader/v2"
 	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
@@ -27,7 +26,7 @@ func main() {
 	iterator_uri := flag.String("data-iterator-uri", "repo://", "A valid whosonfirst/go-whosonfirst-iterate/v2 URI")
 	iterator_source := flag.String("data-iterator-source", "/usr/local/data/sfomuseum-data-whosonfirst", "...")
 
-	wof_reader_uri := flag.String("whosonfirst-reader-uri", "whosonfirst-data://", "A valid whosonfirst/go-reader URI.")
+	wof_reader_uri := flag.String("whosonfirst-reader-uri", fetch.WHOSONFIRST_DATA_READER_URI, "A valid whosonfirst/go-reader URI.")
 
 	data_reader_uri := flag.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
 	properties_reader_uri := flag.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
@@ -127,7 +126,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create new iterator, %v", err)
 	}
-	
+
 	for rec, err := range iter.Iterate(ctx, *iterator_source) {
 
 		if err != nil {
@@ -135,12 +134,11 @@ func main() {
 		}
 
 		defer rec.Body.Close()
-		
 
 		id, _, err := uri.ParseURI(rec.Path)
 
 		if err != nil {
-			return fmt.Errorf("Failed to derive ID from %s, %w", rec.Path, err)
+			log.Fatalf("Failed to derive ID from %s, %v", rec.Path, err)
 		}
 
 		// START OF put me in a function
@@ -152,15 +150,13 @@ func main() {
 		if err != nil {
 
 			fmt.Printf("Failed to fetch %d (%s), %v", id, rec.Path, err)
-			return nil
-
-			// return fmt.Errorf("Failed to fetch %d (%s), %w", id, rec.Path, err)
+			continue
 		}
 
 		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, id)
 
 		if err != nil {
-			return fmt.Errorf("Failed to apply SFO Museum properties for %d (%s), %v", id, rec.Path, err)
+			log.Fatalf("Failed to apply SFO Museum properties for %d (%s), %v", id, rec.Path, err)
 		}
 
 		// END OF put me in a function

@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"os"
 
@@ -60,7 +59,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create new iterator, %v", err)
 	}
-	
+
 	for rec, err := range iter.Iterate(ctx, uris...) {
 
 		if err != nil {
@@ -76,13 +75,13 @@ func main() {
 		}
 
 		if uri_args.IsAlternate {
-			return nil
+			continue
 		}
 
 		err = custom.MergeCustomProperties(ctx, props_r, r, wr, id)
 
 		if err != nil {
-			log.Fatalf("Failed to merge properties for %d, %w", id, err)
+			log.Fatalf("Failed to merge properties for %d, %v", id, err)
 		}
 	}
 

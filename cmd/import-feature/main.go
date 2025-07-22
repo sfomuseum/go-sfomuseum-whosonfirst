@@ -17,7 +17,7 @@ import (
 	_ "gocloud.dev/runtimevar/awsparamstore"
 	_ "gocloud.dev/runtimevar/constantvar"
 	_ "gocloud.dev/runtimevar/filevar"
-	
+
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sfomuseum/go-flags/flagset"
@@ -25,8 +25,8 @@ import (
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/filter"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
-	"github.com/whosonfirst/go-reader/v2"
 	gh_reader "github.com/whosonfirst/go-reader-github/v2"
+	"github.com/whosonfirst/go-reader/v2"
 	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	gh_writer "github.com/whosonfirst/go-writer-github/v3"
@@ -83,7 +83,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		fs.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nNotes:\n\n")
-		fmt.Fprintf(os.Stderr, wordwrap.WrapString("pathN may be any valid Who's On First ID or URI that can be parsed by the go-whosonfirst-uri package.\n\n", 80))
+		fmt.Fprint(os.Stderr, wordwrap.WrapString("pathN may be any valid Who's On First ID or URI that can be parsed by the go-whosonfirst-uri package.\n\n", 80))
 	}
 
 	mode := fs.String("mode", "cli", "Valid options are: cli, lambda")

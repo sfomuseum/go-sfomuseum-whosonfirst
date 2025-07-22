@@ -65,14 +65,14 @@ func main() {
 		id, uri_args, err := uri.ParseURI(rec.Path)
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse '%s', %v", rec.Path, err)
+			log.Fatalf("Failed to parse '%s', %v", rec.Path, err)
 		}
 
 		if uri_args.IsAlternate {
 			continue
 		}
 
-		body, err := io.ReadAll(fh)
+		body, err := io.ReadAll(rec.Body)
 
 		if err != nil {
 			log.Fatalf("Failed to read '%s', %v", rec.Path, err)
@@ -116,7 +116,7 @@ func main() {
 		}
 
 		if !has_updates {
-			return nil
+			continue
 		}
 
 		err = custom.WriteCustomProperties(ctx, props_wr, id, props_map)
@@ -124,8 +124,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to write custom properties for %d, %v", id, err)
 		}
-
-		return nil
 	}
 
 }
