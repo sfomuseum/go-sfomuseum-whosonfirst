@@ -12,9 +12,6 @@ import (
 )
 
 // Describes auto scaling settings across replicas of the global table at once.
-//
-// For global tables, this operation only applies to global tables using Version
-// 2019.11.21 (Current version).
 func (c *Client) DescribeTableReplicaAutoScaling(ctx context.Context, params *DescribeTableReplicaAutoScalingInput, optFns ...func(*Options)) (*DescribeTableReplicaAutoScalingOutput, error) {
 	if params == nil {
 		params = &DescribeTableReplicaAutoScalingInput{}
@@ -39,6 +36,12 @@ type DescribeTableReplicaAutoScalingInput struct {
 	TableName *string
 
 	noSmithyDocumentSerde
+}
+
+func (in *DescribeTableReplicaAutoScalingInput) bindEndpointParams(p *EndpointParameters) {
+
+	p.ResourceArn = in.TableName
+
 }
 
 type DescribeTableReplicaAutoScalingOutput struct {
@@ -95,6 +98,9 @@ func (c *Client) addOperationDescribeTableReplicaAutoScalingMiddlewares(stack *m
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -111,6 +117,12 @@ func (c *Client) addOperationDescribeTableReplicaAutoScalingMiddlewares(stack *m
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
+	if err = addUserAgentAccountIDEndpointMode(stack, options); err != nil {
+		return err
+	}
+	if err = addCredentialSource(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDescribeTableReplicaAutoScalingValidationMiddleware(stack); err != nil {
@@ -138,6 +150,18 @@ func (c *Client) addOperationDescribeTableReplicaAutoScalingMiddlewares(stack *m
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

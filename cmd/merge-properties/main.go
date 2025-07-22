@@ -10,8 +10,8 @@ import (
 	"os"
 
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
-	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
+	"github.com/whosonfirst/go-reader/v2"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v3"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
 )
@@ -55,12 +55,24 @@ func main() {
 		log.Fatalf("Failed to create (properties) reader, %v", err)
 	}
 
-	iter_cb := func(ctx context.Context, path string, fh io.ReadSeeker, args ...interface{}) error {
+	iter, err := iterate.NewIterator(ctx, *iter_uri)
 
-		id, uri_args, err := uri.ParseURI(path)
+	if err != nil {
+		log.Fatalf("Failed to create new iterator, %v", err)
+	}
+	
+	for rec, err := range iter.Iterate(ctx, uris...) {
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse '%s', %v", path, err)
+			log.Fatal(err)
+		}
+
+		defer rec.Body.Close()
+
+		id, uri_args, err := uri.ParseURI(rec.Path)
+
+		if err != nil {
+			log.Fatalf("Failed to parse '%s', %v", rec.Path, err)
 		}
 
 		if uri_args.IsAlternate {
@@ -70,22 +82,8 @@ func main() {
 		err = custom.MergeCustomProperties(ctx, props_r, r, wr, id)
 
 		if err != nil {
-			return fmt.Errorf("Failed to merge properties for %d, %w", id, err)
+			log.Fatalf("Failed to merge properties for %d, %w", id, err)
 		}
-
-		return nil
-	}
-
-	iter, err := iterator.NewIterator(ctx, *iter_uri, iter_cb)
-
-	if err != nil {
-		log.Fatalf("Failed to create new iterator, %v", err)
-	}
-
-	err = iter.IterateURIs(ctx, uris...)
-
-	if err != nil {
-		log.Fatalf("Failed to iterate URIs, %v", err)
 	}
 
 }

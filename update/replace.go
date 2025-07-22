@@ -8,8 +8,8 @@ import (
 	"github.com/paulmach/orb/geojson"
 	"github.com/sfomuseum/go-edtf"
 	sfom_writer "github.com/sfomuseum/go-sfomuseum-writer/v3"
-	"github.com/whosonfirst/go-reader"
-	wof_reader "github.com/whosonfirst/go-whosonfirst-reader"
+	"github.com/whosonfirst/go-reader/v2"
+	wof_reader "github.com/whosonfirst/go-whosonfirst-reader/v2"
 	"github.com/whosonfirst/go-writer/v3"
 )
 

@@ -9,15 +9,14 @@ import (
 	"net/url"
 	"sync"
 
-	_ "github.com/whosonfirst/go-reader-github"
-	_ "github.com/whosonfirst/go-reader-http"
+	_ "github.com/whosonfirst/go-reader-github/v2"
 	
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
 	"github.com/tidwall/gjson"
-	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-reader/v2"
 	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
-	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v3"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
 )
@@ -99,29 +98,41 @@ func main() {
 
 	features_map := new(sync.Map)
 
-	iter_cb := func(ctx context.Context, path string, r io.ReadSeeker, args ...interface{}) error {
+	iter, err := iterate.NewIterator(ctx, *iterator_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to create new iterator, %v", err)
+	}
+	
+	for rec, err := range iter.Iterate(ctx, iterator_sources...) {
 
 		select {
 		case <-ctx.Done():
-			return nil
+			break
 		default:
 			// pass
 		}
 
-		_, uri_args, err := uri.ParseURI(path)
+		if err != nil {
+			log.Fatalf("Failed to iterate, %v", err)
+		}
+
+		defer rec.Body.Close()
+		
+		_, uri_args, err := uri.ParseURI(rec.Path)
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse %s, %v", path, err)
+			return fmt.Errorf("Failed to parse %s, %v", rec.Path, err)
 		}
 
 		if uri_args.IsAlternate {
 			return nil
 		}
 
-		body, err := io.ReadAll(r)
+		body, err := io.ReadAll(rec.Body)
 
 		if err != nil {
-			return fmt.Errorf("Failed to read %s, %w", path, err)
+			return fmt.Errorf("Failed to read %s, %w", rec.Path, err)
 		}
 
 		done_ch := make(chan bool)
@@ -153,19 +164,6 @@ func main() {
 			}
 		}
 
-		return nil
-	}
-
-	iter, err := iterator.NewIterator(ctx, *iterator_uri, iter_cb)
-
-	if err != nil {
-		log.Fatalf("Failed to create new iterator, %v", err)
-	}
-
-	err = iter.IterateURIs(ctx, iterator_sources...)
-
-	if err != nil {
-		log.Fatalf("Failed to iterate URIs, %v", err)
 	}
 
 	//

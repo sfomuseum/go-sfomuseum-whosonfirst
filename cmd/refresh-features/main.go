@@ -11,14 +11,13 @@ import (
 	"net/url"
 	"os"
 
-	_ "github.com/whosonfirst/go-reader-github"
-	_ "github.com/whosonfirst/go-reader-http"
-	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
+	_ "github.com/whosonfirst/go-reader-github/v2"
+	_ "github.com/whosonfirst/go-reader-findingaid/v2"
 	
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
-	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-reader/v2"
 	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
-	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v3"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
 )
@@ -123,12 +122,25 @@ func main() {
 		"country",
 	}
 
-	iter_cb := func(ctx context.Context, path string, r io.ReadSeeker, args ...interface{}) error {
+	iter, err := iterate.NewIterator(ctx, *iterator_uri)
 
-		id, _, err := uri.ParseURI(path)
+	if err != nil {
+		log.Fatalf("Failed to create new iterator, %v", err)
+	}
+	
+	for rec, err := range iter.Iterate(ctx, *iterator_source) {
 
 		if err != nil {
-			return fmt.Errorf("Failed to derive ID from %s, %w", path, err)
+			log.Fatal(err)
+		}
+
+		defer rec.Body.Close()
+		
+
+		id, _, err := uri.ParseURI(rec.Path)
+
+		if err != nil {
+			return fmt.Errorf("Failed to derive ID from %s, %w", rec.Path, err)
 		}
 
 		// START OF put me in a function
@@ -139,33 +151,19 @@ func main() {
 
 		if err != nil {
 
-			fmt.Printf("Failed to fetch %d (%s), %v", id, path, err)
+			fmt.Printf("Failed to fetch %d (%s), %v", id, rec.Path, err)
 			return nil
 
-			// return fmt.Errorf("Failed to fetch %d (%s), %w", id, path, err)
+			// return fmt.Errorf("Failed to fetch %d (%s), %w", id, rec.Path, err)
 		}
 
 		err = custom.ApplySFOMuseumProperties(ctx, sfom_opts, id)
 
 		if err != nil {
-			return fmt.Errorf("Failed to apply SFO Museum properties for %d (%s), %v", id, path, err)
+			return fmt.Errorf("Failed to apply SFO Museum properties for %d (%s), %v", id, rec.Path, err)
 		}
 
 		// END OF put me in a function
-
-		return nil
-	}
-
-	iter, err := iterator.NewIterator(ctx, *iterator_uri, iter_cb)
-
-	if err != nil {
-		log.Fatalf("Failed to create new iterator, %v", err)
-	}
-
-	err = iter.IterateURIs(ctx, *iterator_source)
-
-	if err != nil {
-		log.Fatalf("Failed to iterate URIs, %v", err)
 	}
 
 }

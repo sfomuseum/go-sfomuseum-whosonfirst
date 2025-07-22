@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/whosonfirst/go-reader-http"
 	_ "gocloud.dev/runtimevar/awsparamstore"
 	_ "gocloud.dev/runtimevar/constantvar"
 	_ "gocloud.dev/runtimevar/filevar"
@@ -26,8 +25,8 @@ import (
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/filter"
 	wof_import "github.com/sfomuseum/go-sfomuseum-whosonfirst/import"
-	"github.com/whosonfirst/go-reader"
-	gh_reader "github.com/whosonfirst/go-reader-github"
+	"github.com/whosonfirst/go-reader/v2"
+	gh_reader "github.com/whosonfirst/go-reader-github/v2"
 	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	gh_writer "github.com/whosonfirst/go-writer-github/v3"

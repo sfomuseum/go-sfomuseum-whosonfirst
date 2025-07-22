@@ -16,7 +16,7 @@ import (
 	
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-writer"
-	"github.com/whosonfirst/go-whosonfirst-fetch"
+	"github.com/whosonfirst/go-whosonfirst-fetch/v2"
 )
 
 func main() {
@@ -142,7 +142,7 @@ import (
 	_ "github.com/whosonfirst/go-reader-whosonfirst-data"
 	_ "github.com/whosonfirst/go-writer-geoparquet/v3"
 	
-	"github.com/whosonfirst/go-whosonfirst-fetch/app/fetch"
+	"github.com/whosonfirst/go-whosonfirst-fetch/v2/app/fetch"
 )
 
 func main() {
