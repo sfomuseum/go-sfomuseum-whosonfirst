@@ -11,8 +11,8 @@ import (
 
 	"github.com/sfomuseum/go-sfomuseum-whosonfirst/custom"
 	"github.com/tidwall/gjson"
-	"github.com/whosonfirst/go-reader"
-	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
+	"github.com/whosonfirst/go-reader/v2"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v3"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/go-writer/v3"
 )
@@ -48,28 +48,40 @@ func main() {
 		log.Fatalf("Failed to create reader, %v", err)
 	}
 
-	iter_cb := func(ctx context.Context, path string, fh io.ReadSeeker, args ...interface{}) error {
+	iter, err := iterate.NewIterator(ctx, *iter_uri)
 
-		id, uri_args, err := uri.ParseURI(path)
+	if err != nil {
+		log.Fatalf("Failed to create new iterator, %v", err)
+	}
+
+	for rec, err := range iter.Iterate(ctx, uris...) {
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse '%s', %v", path, err)
+			log.Fatal(err)
+		}
+
+		defer rec.Body.Close()
+
+		id, uri_args, err := uri.ParseURI(rec.Path)
+
+		if err != nil {
+			log.Fatalf("Failed to parse '%s', %v", rec.Path, err)
 		}
 
 		if uri_args.IsAlternate {
-			return nil
+			continue
 		}
 
-		body, err := io.ReadAll(fh)
+		body, err := io.ReadAll(rec.Body)
 
 		if err != nil {
-			return fmt.Errorf("Failed to read '%s', %v", path, err)
+			log.Fatalf("Failed to read '%s', %v", rec.Path, err)
 		}
 
 		props_map, err := custom.EnsureCustomProperties(ctx, props_r, props_wr, id)
 
 		if err != nil {
-			return fmt.Errorf("Failed to load custom properties for for '%d', %v", id, err)
+			log.Fatalf("Failed to load custom properties for for '%d', %v", id, err)
 		}
 
 		has_updates := false
@@ -88,7 +100,7 @@ func main() {
 			pt_rsp := gjson.GetBytes(body, "properties.wof:placetype")
 
 			if !pt_rsp.Exists() {
-				return fmt.Errorf("Failed to derive wof:placetype for '%s'", path)
+				log.Fatalf("Failed to derive wof:placetype for '%s'", rec.Path)
 			}
 
 			switch pt_rsp.String() {
@@ -104,28 +116,14 @@ func main() {
 		}
 
 		if !has_updates {
-			return nil
+			continue
 		}
 
 		err = custom.WriteCustomProperties(ctx, props_wr, id, props_map)
 
 		if err != nil {
-			return fmt.Errorf("Failed to write custom properties for %d, %v", id, err)
+			log.Fatalf("Failed to write custom properties for %d, %v", id, err)
 		}
-
-		return nil
-	}
-
-	iter, err := iterator.NewIterator(ctx, *iter_uri, iter_cb)
-
-	if err != nil {
-		log.Fatalf("Failed to create new iterator, %v", err)
-	}
-
-	err = iter.IterateURIs(ctx, uris...)
-
-	if err != nil {
-		log.Fatalf("Failed to iterate URIs, %v", err)
 	}
 
 }

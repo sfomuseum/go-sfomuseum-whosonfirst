@@ -20,9 +20,6 @@ import (
 // returns a ResourceNotFoundException . If table is already in the DELETING
 // state, no error is returned.
 //
-// For global tables, this operation only applies to global tables using Version
-// 2019.11.21 (Current version).
-//
 // DynamoDB might continue to accept data read and write operations, such as
 // GetItem and PutItem , on a table in the DELETING state until the table deletion
 // is complete. For the full list of table states, see [TableStatus].
@@ -61,6 +58,12 @@ type DeleteTableInput struct {
 	TableName *string
 
 	noSmithyDocumentSerde
+}
+
+func (in *DeleteTableInput) bindEndpointParams(p *EndpointParameters) {
+
+	p.ResourceArn = in.TableName
+
 }
 
 // Represents the output of a DeleteTable operation.
@@ -118,6 +121,9 @@ func (c *Client) addOperationDeleteTableMiddlewares(stack *middleware.Stack, opt
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -137,6 +143,12 @@ func (c *Client) addOperationDeleteTableMiddlewares(stack *middleware.Stack, opt
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
+	if err = addUserAgentAccountIDEndpointMode(stack, options); err != nil {
+		return err
+	}
+	if err = addCredentialSource(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDeleteTableValidationMiddleware(stack); err != nil {
@@ -164,6 +176,18 @@ func (c *Client) addOperationDeleteTableMiddlewares(stack *middleware.Stack, opt
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil
