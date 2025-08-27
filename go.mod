@@ -19,7 +19,7 @@ require (
 	github.com/whosonfirst/go-reader/v2 v2.0.0
 	github.com/whosonfirst/go-whosonfirst-export/v3 v3.0.4
 	github.com/whosonfirst/go-whosonfirst-feature v0.0.29
-	github.com/whosonfirst/go-whosonfirst-fetch/v2 v2.0.1
+	github.com/whosonfirst/go-whosonfirst-fetch/v2 v2.0.2
 	github.com/whosonfirst/go-whosonfirst-iterate/v3 v3.2.0
 	github.com/whosonfirst/go-whosonfirst-reader/v2 v2.0.0
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0

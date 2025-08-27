@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io"
 	"log"
+	"log/slog"
 	"net/url"
 	"sync"
 
@@ -22,6 +23,9 @@ import (
 
 func main() {
 
+	var verbose bool
+	var strict bool
+	
 	iterator_uri := flag.String("iterator-uri", "repo://", "")
 
 	wof_reader_uri := flag.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
@@ -37,12 +41,20 @@ func main() {
 
 	user_agent := flag.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
 
+	flag.BoolVar(&strict, "strict", false, "Throw errors if any record fails to be retrieved.")	
+	flag.BoolVar(&verbose, "verbose", false, "Enable verbose (debug) logging.")
+	
 	flag.Parse()
 
 	iterator_sources := flag.Args()
 
 	ctx := context.Background()
 
+	if verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Verbose logging enabled")
+	}
+	
 	if *user_agent != "" {
 
 		wof_u, err := url.Parse(*wof_reader_uri)
@@ -56,6 +68,8 @@ func main() {
 
 		wof_u.RawQuery = q.Encode()
 		*wof_reader_uri = wof_u.String()
+
+		slog.Debug("Set user agent", "agent", *user_agent)
 	}
 
 	wof_r, err := reader.NewReader(ctx, *wof_reader_uri)
@@ -89,10 +103,7 @@ func main() {
 	}
 
 	query_paths := []string{
-		"properties.sfomuseum:flightcover_address_from",
-		"properties.sfomuseum:flightcover_address_to",
-		"properties.sfomuseum:flightcover_postmark_sent",
-		"properties.sfomuseum:flightcover_postmark_received",
+		"properties.geotag:whosonfirst_belongsto",
 	}
 
 	features_map := new(sync.Map)
@@ -170,8 +181,14 @@ func main() {
 	feature_ids := make([]int64, 0)
 
 	features_map.Range(func(k interface{}, v interface{}) bool {
+		
 		id := k.(int64)
-		feature_ids = append(feature_ids, id)
+
+		if id > -1 {
+			slog.Info("Schedule record for fetching", "id", id)
+			feature_ids = append(feature_ids, id)
+		}
+		
 		return true
 	})
 
@@ -185,7 +202,8 @@ func main() {
 
 	fetcher_opts.Retries = *retries
 	fetcher_opts.MaxClients = *max_clients
-
+	fetcher_opts.Strict = strict
+	
 	fetcher, err := fetch.NewFetcher(ctx, wof_r, data_wr, fetcher_opts)
 
 	if err != nil {

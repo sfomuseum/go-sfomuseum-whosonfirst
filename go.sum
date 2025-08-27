@@ -273,8 +273,8 @@ github.com/whosonfirst/go-whosonfirst-export/v3 v3.0.4 h1:PpT3mk6wpaWLtxFz94oOT0
 github.com/whosonfirst/go-whosonfirst-export/v3 v3.0.4/go.mod h1:8FbuNtrIGIZ3fO+2lCJ8RAj8XpsYDxDtFKrSESzZ/wQ=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.29 h1:Sy5qE+dR3U6CYEJjDuflsjWM9x4ico4+F++xeTQQSHs=
 github.com/whosonfirst/go-whosonfirst-feature v0.0.29/go.mod h1:sJl2dhA5l10Maukks4Kx6X6JwqtKD1NKLNJrmRkFOfE=
-github.com/whosonfirst/go-whosonfirst-fetch/v2 v2.0.1 h1:WBjF7XqD99ZFSOCMScwO3TlXo+ijkWynlkOySG2fzoQ=
-github.com/whosonfirst/go-whosonfirst-fetch/v2 v2.0.1/go.mod h1:H+cWhF934PvVZufYQi/8LMDYlAXKBEnfo313SbVSPVM=
+github.com/whosonfirst/go-whosonfirst-fetch/v2 v2.0.2 h1:bXHhnXmeW2llJKrUjLMgL6enWeYYekvvUjMzoLr+WbU=
+github.com/whosonfirst/go-whosonfirst-fetch/v2 v2.0.2/go.mod h1:Njc0kh0M5vqwrs4Rd+jJdch2PlcdfM6QRfFMAPFptPY=
 github.com/whosonfirst/go-whosonfirst-findingaid/v2 v2.9.2 h1:t8Hfc+NvqAss5WQXTUpbVSShc4GRqmlYdVKKeeJOyJY=
 github.com/whosonfirst/go-whosonfirst-findingaid/v2 v2.9.2/go.mod h1:Xt5MiyCe1kgthU+w5GhKzI0J0g8TMsGwXQj8/o3HK+k=
 github.com/whosonfirst/go-whosonfirst-flags v0.5.2 h1:vSx7fcM04HiSAEF+WOKfuyJawac99skN9HJAeqBXWpI=
