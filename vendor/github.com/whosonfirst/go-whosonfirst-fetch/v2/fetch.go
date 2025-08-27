@@ -19,12 +19,14 @@ import (
 
 // Options is a struct containing configuration options for fetching Who's On First record
 type Options struct {
-	// Timings is a boolean flag to indicate whether timings should be recorded
+	// Timings is a boolean flag to indicate whether timings should be recorded.
 	Timings bool
-	// MaxClients is the number of simultaneous clients in use to fetch Who's On First records
+	// MaxClients is the number of simultaneous clients in use to fetch Who's On First records.
 	MaxClients int
-	// Retries is the number of times to retry a failed attemp to fetch a Who's On First record
+	// Retries is the number of times to retry a failed attemp to fetch a Who's On First record.
 	Retries int
+	// Throw errors when any given record can not be fetched.
+	Strict bool
 }
 
 // DefaultOptions returns a `Options` instance with: timings and retries disabled, the maximum number of simultaneous
@@ -35,6 +37,7 @@ func DefaultOptions() (*Options, error) {
 		Timings:    false,
 		MaxClients: 10,
 		Retries:    0,
+		Strict:     true,
 	}
 
 	return &o, nil
@@ -88,6 +91,7 @@ func (f *Fetcher) FetchIDs(ctx context.Context, ids []int64, belongs_to ...strin
 	err_ch := make(chan error)
 
 	for _, id := range ids {
+		slog.Debug("Schedule ID for fetching", "id", id)
 		go f.FetchID(ctx, id, belongs_to, done_ch, err_ch)
 	}
 
@@ -99,7 +103,12 @@ func (f *Fetcher) FetchIDs(ctx context.Context, ids []int64, belongs_to ...strin
 		case <-done_ch:
 			remaining -= 1
 		case err := <-err_ch:
-			return nil, fmt.Errorf("Failed to fetch ID (%d remaining), %w", remaining, err)
+			slog.Error("Failed to fetch ID", "error", err)
+
+			if f.options.Strict {
+				return nil, fmt.Errorf("Failed to fetch ID (%d remaining), %w", remaining, err)
+			}
+
 		default:
 			//
 		}
@@ -110,6 +119,7 @@ func (f *Fetcher) FetchIDs(ctx context.Context, ids []int64, belongs_to ...strin
 	f.processed.Range(func(k interface{}, v interface{}) bool {
 		id := k.(int64)
 		processed = append(processed, id)
+		slog.Debug("Record processed", "id", id, "total", len(processed))
 		return true
 	})
 
@@ -209,7 +219,7 @@ func (f *Fetcher) fetchID(ctx context.Context, id int64, belongs_to ...string) e
 	}
 
 	if read_err != nil {
-		logger.Error("Failed to open record for reading", "error", err)
+		logger.Error("Failed to open record for reading", "error", read_err)
 		return fmt.Errorf("Failed to open record for reading for ID, %w", read_err)
 	}
 
