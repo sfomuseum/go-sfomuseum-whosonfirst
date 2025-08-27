@@ -23,27 +23,41 @@ import (
 
 func main() {
 
+	var iterator_uri string
+	var wof_reader_uri string
+
+	var data_reader_uri string
+	var properties_reader_uri string
+
+	var data_writer_uri string
+	var properties_writer_uri string
+
+	var retries int
+	var max_clients int
+
+	var user_agent string
+
 	var verbose bool
 	var strict bool
-	
-	iterator_uri := flag.String("iterator-uri", "repo://", "")
 
-	wof_reader_uri := flag.String("whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
+	flag.StringVar(&iterator_uri, "iterator-uri", "repo://", "")
 
-	data_reader_uri := flag.String("data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
-	properties_reader_uri := flag.String("properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
+	flag.StringVar(&wof_reader_uri, "whosonfirst-reader-uri", "https://data.whosonfirst.org/", "A valid whosonfirst/go-reader URI.")
 
-	data_writer_uri := flag.String("data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
-	properties_writer_uri := flag.String("properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
+	flag.StringVar(&data_reader_uri, "data-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-reader URI.")
+	flag.StringVar(&properties_reader_uri, "properties-reader-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-reader URI.")
 
-	retries := flag.Int("retries", 3, "The maximum number of attempts to try fetching a record.")
-	max_clients := flag.Int("max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
+	flag.StringVar(&data_writer_uri, "data-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/data", "A valid whosonfirst/go-writer URI.")
+	flag.StringVar(&properties_writer_uri, "properties-writer-uri", "fs:///usr/local/data/sfomuseum-data-whosonfirst/properties", "A valid whosonfirst/go-writer URI.")
 
-	user_agent := flag.String("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
+	flag.IntVar(&retries, "retries", 3, "The maximum number of attempts to try fetching a record.")
+	flag.IntVar(&max_clients, "max-clients", 10, "The maximum number of concurrent requests for multiple Who's On First records.")
 
-	flag.BoolVar(&strict, "strict", false, "Throw errors if any record fails to be retrieved.")	
+	flag.StringVar(&user_agent, "user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0", "An optional user-agent to append to the -whosonfirst-reader-uri flag")
+
+	flag.BoolVar(&strict, "strict", false, "Throw errors if any record fails to be retrieved.")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose (debug) logging.")
-	
+
 	flag.Parse()
 
 	iterator_sources := flag.Args()
@@ -54,49 +68,49 @@ func main() {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Debug("Verbose logging enabled")
 	}
-	
-	if *user_agent != "" {
 
-		wof_u, err := url.Parse(*wof_reader_uri)
+	if user_agent != "" {
+
+		wof_u, err := url.Parse(wof_reader_uri)
 
 		if err != nil {
 			log.Fatalf("Failed to parse (WOF) reader URI, %v", err)
 		}
 
 		q := wof_u.Query()
-		q.Set("user-agent", *user_agent)
+		q.Set("user-agent", user_agent)
 
 		wof_u.RawQuery = q.Encode()
-		*wof_reader_uri = wof_u.String()
+		wof_reader_uri = wof_u.String()
 
-		slog.Debug("Set user agent", "agent", *user_agent)
+		slog.Debug("Set user agent", "agent", user_agent)
 	}
 
-	wof_r, err := reader.NewReader(ctx, *wof_reader_uri)
+	wof_r, err := reader.NewReader(ctx, wof_reader_uri)
 
 	if err != nil {
-		log.Fatalf("Failed to create new WOF reader for '%s', %v", *wof_reader_uri, err)
+		log.Fatalf("Failed to create new WOF reader for '%s', %v", wof_reader_uri, err)
 	}
 
-	data_r, err := reader.NewReader(ctx, *data_reader_uri)
+	data_r, err := reader.NewReader(ctx, data_reader_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create new data reader, %v", err)
 	}
 
-	props_r, err := reader.NewReader(ctx, *properties_reader_uri)
+	props_r, err := reader.NewReader(ctx, properties_reader_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create new properties reader, %v", err)
 	}
 
-	data_wr, err := writer.NewWriter(ctx, *data_writer_uri)
+	data_wr, err := writer.NewWriter(ctx, data_writer_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create new data writer, %v", err)
 	}
 
-	props_wr, err := writer.NewWriter(ctx, *properties_writer_uri)
+	props_wr, err := writer.NewWriter(ctx, properties_writer_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create new properties writer, %v", err)
@@ -108,7 +122,7 @@ func main() {
 
 	features_map := new(sync.Map)
 
-	iter, err := iterate.NewIterator(ctx, *iterator_uri)
+	iter, err := iterate.NewIterator(ctx, iterator_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create new iterator, %v", err)
@@ -181,14 +195,14 @@ func main() {
 	feature_ids := make([]int64, 0)
 
 	features_map.Range(func(k interface{}, v interface{}) bool {
-		
+
 		id := k.(int64)
 
 		if id > -1 {
 			slog.Info("Schedule record for fetching", "id", id)
 			feature_ids = append(feature_ids, id)
 		}
-		
+
 		return true
 	})
 
@@ -200,10 +214,10 @@ func main() {
 		log.Fatalf("Failed to create fetch options, %v", err)
 	}
 
-	fetcher_opts.Retries = *retries
-	fetcher_opts.MaxClients = *max_clients
+	fetcher_opts.Retries = retries
+	fetcher_opts.MaxClients = max_clients
 	fetcher_opts.Strict = strict
-	
+
 	fetcher, err := fetch.NewFetcher(ctx, wof_r, data_wr, fetcher_opts)
 
 	if err != nil {
