@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/aaronland/go-aws-lambda"
+	"github.com/aaronland/go-aws/v3/lambda"
 )
 
 const LAMBDA_SCHEME string = "lambda"
