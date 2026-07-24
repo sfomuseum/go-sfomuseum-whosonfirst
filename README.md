@@ -2,6 +2,10 @@
 
 Go package for working with whosonfirst-data repositories in a SFO Museum context.
 
+## Deprecation Notice
+
+This package has been deprecated. Please use [sfomuseum/go-sfomuseum/whosonfirst](https://github.com/sfomuseum/go-sfomuseum) instead.
+
 ## Documentation
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/sfomuseum/go-sfomuseum-whosonfirst.svg)](https://pkg.go.dev/github.com/sfomuseum/go-sfomuseum-whosonfirst)
